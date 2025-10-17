@@ -1,0 +1,40 @@
+plugins {
+    id ("java")
+    id ("java-library-distribution")
+}
+
+group = 'com.controllerface'
+version = '1.0-SNAPSHOT'
+
+project.ext.lwjglVersion = "3.4.0-SNAPSHOT"
+project.ext.jomlVersion = "1.10.8"
+project.ext.lwjglNatives = "natives-windows"
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://central.sonatype.com/repository/maven-snapshots" }
+}
+
+dependencies {
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+
+    implementation "com.juncture:alloy-core:1.0-SNAPSHOT"
+    implementation "com.juncture:alloy-utils:1.0-SNAPSHOT"
+    implementation "com.juncture:alloy-ui:1.0-SNAPSHOT"
+    implementation "com.juncture:alloy-physics:1.0-SNAPSHOT"
+
+    implementation "org.lwjgl:lwjgl"
+    implementation "org.lwjgl:lwjgl-freetype"
+    implementation "org.lwjgl:lwjgl-glfw"
+    implementation "org.lwjgl:lwjgl-opengl"
+    implementation "org.joml:joml:${jomlVersion}"
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}

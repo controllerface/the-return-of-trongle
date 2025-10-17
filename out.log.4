@@ -1,0 +1,35 @@
+[Thu Oct 16 20:20:06 EDT 2025] INFO: { Main } main() - Starting up 
+[Thu Oct 16 20:20:07 EDT 2025] INFO: { GPU$GL } init_gl() - -------- OPEN GL DEVICE ----------- 
+[Thu Oct 16 20:20:07 EDT 2025] INFO: { GPU$GL } init_gl() - ATI Technologies Inc. 
+[Thu Oct 16 20:20:07 EDT 2025] INFO: { GPU$GL } init_gl() - AMD Radeon RX 7900 XT 
+[Thu Oct 16 20:20:07 EDT 2025] INFO: { GPU$GL } init_gl() - 4.6.0 Core Profile Context 25.9.1.250822 
+[Thu Oct 16 20:20:07 EDT 2025] INFO: { GPU$GL } init_gl() - ----------------------------------- 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - ------ OPEN GL Attributes --------- 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - max texture size: 16384 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - max texture layers: 8192 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - max vertex attributes: 32 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - max vertex shader texture units: 32 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - max fragment shader texture units: 32 
+[Thu Oct 16 20:20:07 EDT 2025] FINE: { GPU$GL } init_gl() - ----------------------------------- 
+[Thu Oct 16 20:20:07 EDT 2025] SEVERE: { CrashHandler } uncaughtException() - Crashed on thread: main 
+[Thu Oct 16 20:20:07 EDT 2025] SEVERE: { CrashHandler } uncaughtException() - Stacktrace:  
+java.lang.RuntimeException: Unexpected error
+	at com.juncture.alloy.game.GameContext.run(GameContext.java:96)
+	at com.controllerface.trongle.Main.main(Main.java:14)
+Caused by: java.lang.NullPointerException
+	at java.base/java.util.Objects.requireNonNull(Objects.java:220)
+	at java.base/java.lang.invoke.VarHandleSegmentAsInts.checkSegment(VarHandleSegmentAsInts.java:82)
+	at java.base/java.lang.invoke.VarHandleSegmentAsInts.set(VarHandleSegmentAsInts.java:114)
+	at com.juncture.alloy.utils.memory.opengl.DrawElementsIndirectCommand.map_at_index(DrawElementsIndirectCommand.java:58)
+	at com.controllerface.trongle.render.ModelRenderPass.update_model_data(ModelRenderPass.java:309)
+	at com.controllerface.trongle.render.ModelRenderPass.render(ModelRenderPass.java:357)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at com.juncture.alloy.gpu.Renderer.render(Renderer.java:28)
+	at com.controllerface.trongle.render.GeometryRenderer.render(GeometryRenderer.java:99)
+	at com.controllerface.trongle.render.RenderingSystem.tick(RenderingSystem.java:49)
+	at com.juncture.alloy.ecs.ECS.tick(ECS.java:167)
+	at com.juncture.alloy.game.GameContext.tick(GameContext.java:105)
+	at com.controllerface.trongle.Trongle.loop(Trongle.java:37)
+	at com.juncture.alloy.game.GameContext.run(GameContext.java:95)
+	... 1 more
+
