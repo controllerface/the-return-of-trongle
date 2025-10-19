@@ -1,11 +1,11 @@
 package com.controllerface.trongle.struct;
 
-import com.controllerface.trongle.Component;
 import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.ecs.ECS;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
+import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
