@@ -28,7 +28,7 @@ public class CommonBehavior
 
     public static void zero_for_next_tick(Vector3d current_position, MutableFloat thrust, MutableFloat yaw)
     {
-        current_position.y = 0.0f;
+        current_position.z = 0.0f;
         thrust.value       = 0.0f;
         yaw.value          = 0.0f;
     }

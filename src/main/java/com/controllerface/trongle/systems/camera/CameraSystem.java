@@ -10,6 +10,13 @@ import org.joml.Vector3f;
 
 public class CameraSystem extends ECSSystem<Component>
 {
+    private static final float CENTER_PITCH = -90f;
+    private static final float CENTER_YAW   =   0f;
+    private static final float PITCH_RANGE  =  15f;
+    private static final float YAW_RANGE    =  25f;
+    private static final float ZOOM_MIN     =  25f;
+    private static final float ZOOM_MAX     =  50f;
+
     private final MutableFloat delta_yaw      = new MutableFloat(0);
     private final MutableFloat delta_pitch    = new MutableFloat(0);
     private final MutableFloat delta_zoom     = new MutableFloat(0);
@@ -28,9 +35,12 @@ public class CameraSystem extends ECSSystem<Component>
         ecs.set_global(Component.CameraPitch, delta_pitch);
         ecs.set_global(Component.CameraZoom, delta_zoom);
 
-        camera.set_pitch_range(-90.0f, -90.0f);
-        camera.set_yaw_range(0.0f, 0.0f);
-        camera.set_zoom_distance_limits(50.0f, 50.0f);
+        camera.set_pitch_range(CENTER_PITCH - PITCH_RANGE, CENTER_PITCH + PITCH_RANGE);
+        camera.set_yaw_range(CENTER_YAW - YAW_RANGE, CENTER_YAW + YAW_RANGE);
+        camera.set_zoom_distance_limits(ZOOM_MIN, ZOOM_MAX);
+
+        camera.set_pitch(CENTER_PITCH);
+        camera.set_yaw(CENTER_YAW);
 
         var player = ecs.get_first_entity(Component.Player);
         assert player != null;

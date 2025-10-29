@@ -9,14 +9,9 @@ import com.juncture.alloy.gpu.gl.GL_GraphicsController;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.Ray3d;
 import com.controllerface.trongle.components.*;
-import com.controllerface.trongle.events.EnemyCountEvent;
-import com.controllerface.trongle.events.EntityDestoryEvent;
 import com.controllerface.trongle.events.GameEvent;
 import com.controllerface.trongle.events.ModeSwitchEvent;
-import com.controllerface.trongle.systems.behavior.AxisDirection;
-import com.controllerface.trongle.systems.behavior.EntityBehavior;
 import com.controllerface.trongle.systems.behavior.EntityBehaviorSystem;
-import com.controllerface.trongle.systems.behavior.behaviors.MovementDirection;
 import com.controllerface.trongle.systems.camera.CameraSystem;
 import com.controllerface.trongle.systems.camera.LightSpaceSystem;
 import com.controllerface.trongle.systems.input.InputBinding;
@@ -37,9 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BaseGame extends GameMode<Component>
 {
-    private static final boolean DEBUG_MODE = false;
-
-    private static final int MAX_NPC_TURN_TIME_SECONDS = 5;
+    private static final boolean DEBUG_MODE = true;
 
     private final Queue<Event> event_queue = new LinkedBlockingQueue<>();
 
@@ -60,9 +53,6 @@ public class BaseGame extends GameMode<Component>
 
     private final MutableFloat time_index = new MutableFloat(0.0f);
 
-    private final Map<String, EnemyType> types = new HashMap<>();
-    private final Set<String> drones = new HashSet<>();
-    private final Set<String> ufos   = new HashSet<>();
     private final GL_GraphicsController gl_controller;
 
     public BaseGame(ECS<Component> ecs, GL_GraphicsController glController)
@@ -159,45 +149,6 @@ public class BaseGame extends GameMode<Component>
     @Override
     public void update(double dt)
     {
-        Event next_event;
-        boolean need_update = false;
-        while ((next_event = event_queue.poll()) != null)
-        {
-            if (next_event instanceof EntityDestoryEvent destroyEvent)
-            {
-                var type = types.remove(destroyEvent.entity_id());
-                switch (type)
-                {
-                    case DRONE ->
-                    {
-                        if (drones.remove(destroyEvent.entity_id()))
-                        {
-                            need_update = true;
-                        }
-                    }
-                    case UFO ->
-                    {
-                        if (ufos.remove(destroyEvent.entity_id()))
-                        {
-                            need_update = true;
-                        }
-                    }
-
-                    // todo: add more enemy types
-                    case GENERAL -> {}
-                    case TANKER -> {}
-                    case null -> {}
-                    default -> {}
-                }
-            }
-        }
-
-        if (need_update)
-        {
-            event_bus.emit_event(EnemyCountEvent.new_count(EnemyType.DRONE, drones.size()));
-            event_bus.emit_event(EnemyCountEvent.new_count(EnemyType.UFO, ufos.size()));
-        }
-
         time_index.value += (float) dt;
         process_key_state();
         cycle_day_night(dt);
@@ -235,26 +186,32 @@ public class BaseGame extends GameMode<Component>
     {
         player_entity = ecs.new_entity();
 
-        float scale = 1f;
-        var mass = 1f;
-        var drag = 1f;
-        var max_thrust = 1f;
-        var max_yaw = 10f;
-        var inertia = 1f;
+        var scale      = 1.0f;
+        var mass       = 5.0f;
+        var drag       = 1.0f;
+        var max_pitch  = 20.0f;
+        var max_roll   = 25.0f;
+        var max_thrust = 1.0f;
+        var max_yaw    = 10.0f;
+        var inertia    = 1.0f;
 
-        var max_speed = max_thrust / (mass * drag);
+        var max_speed     = max_thrust / (mass * drag);
         var max_ang_speed = max_yaw / (inertia * drag);
 
-        ecs.set_component(player_entity, Component.Player, Marker.MARKED);
-        ecs.set_component(player_entity, Component.Behavior, EntityBehavior.PLAYER);
-        ecs.set_component(player_entity, Component.Heading, new Vector3d());
-        ecs.set_component(player_entity, Component.MaxPitch, new MutableFloat(20.0f));
-        ecs.set_component(player_entity, Component.MaxRoll, new MutableFloat(25.0f));
-        ecs.set_component(player_entity, Component.MaxSpeed, new MutableFloat(max_speed));
-        ecs.set_component(player_entity, Component.MaxAngSpeed, new MutableFloat(max_ang_speed));
-
+        Archetypes.player(ecs, player_entity);
         Archetypes.model(ecs, player_entity, GLTFModel.TEST_CUBE, scale);
-        Archetypes.physics(ecs, player_entity, mass, inertia, drag, max_thrust, max_yaw,
-            new Vector3d(0.0), new Vector3d(0f, -(Math.PI / 2), 0f), new Vector3d(scale));
+        Archetypes.physics(ecs, player_entity,
+            mass,
+            inertia,
+            drag,
+            max_thrust,
+            max_yaw,
+            max_pitch,
+            max_roll,
+            max_speed,
+            max_ang_speed,
+            new Vector3d(0.0),
+            new Vector3d(0f, -(Math.PI / 2), 0f),
+            new Vector3d(scale));
     }
 }

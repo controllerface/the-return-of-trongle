@@ -29,7 +29,13 @@ public class PlayerBehavior
     private static final Vector2f input_buffer       = new Vector2f();
 
 
-    private static void handle_key_inputs(InputState input_state, MutableFloat thrust,  MutableFloat ang_velocity, MutableFloat yaw, Vector3d rotation, MutableFloat max_ang_speed)
+    private static void handle_key_inputs(InputState input_state,
+                                          MutableFloat thrust,
+                                          Vector3d velocity,
+                                          MutableFloat ang_velocity,
+                                          MutableFloat yaw,
+                                          Vector3d rotation,
+                                          MutableFloat max_ang_speed)
     {
         input_buffer.set(0.0f);
 
@@ -46,12 +52,15 @@ public class PlayerBehavior
             input_buffer.normalize();
         }
 
-//        if (input_buffer.y == 0.0 && input_buffer.x == 0.0)
-//        {
-//            return;
-//        }
-
-        thrust.value = 1.0f;
+        if (input_buffer.y == 0.0 && input_buffer.x == 0.0)
+        {
+            thrust.value = 0.0f;
+            velocity.set(0);
+        }
+        else
+        {
+            thrust.value = 1.0f;
+        }
 
         double targetYaw = Math.atan2(input_buffer.x, input_buffer.y);
         if (idle) targetYaw += Math.PI;
@@ -73,7 +82,7 @@ public class PlayerBehavior
         }
     }
 
-    private static void handle_mouse_inputs(ECS<Component> ecs, String entity_id, MutableFloat cooldown, Vector3d position, InputState input_state)
+    private static void handle_mouse_inputs(ECS<Component> ecs, String entity_id, Vector3d position, InputState input_state)
     {
         var mouse_ray_entity = Component.MouseRay.<String>global(ecs);
         var mouse_ray        = Component.RayCast.<Ray3d>for_entity(ecs, mouse_ray_entity);
@@ -163,8 +172,8 @@ public class PlayerBehavior
 
         CommonBehavior.zero_for_next_tick(position, thrust, yaw);
         CommonBehavior.update_heading(heading, rotation);
-        handle_key_inputs(input_state, thrust, ang_velocity, yaw, rotation, max_ang_speed);
-        //handle_mouse_inputs(ecs, entity_id, fire_cooldown, position, input_state);
+        handle_key_inputs(input_state, thrust, velocity, ang_velocity, yaw, rotation, max_ang_speed);
+        handle_mouse_inputs(ecs, entity_id, position, input_state);
         //CommonBehavior.handle_movement_tilt(velocity, heading, rotation, ang_velocity, max_speed, max_ang_speed, max_pitch, max_roll);
     }
 }
