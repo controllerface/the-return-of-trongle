@@ -1,7 +1,7 @@
 package com.controllerface.trongle.systems.rendering.passes.debug;
 
 import com.juncture.alloy.camera.WorldCamera;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.Window;
@@ -51,7 +51,7 @@ public class ShadowDebugPass extends RenderPass
         1.0f, 1.0f
     };
 
-    public ShadowDebugPass(ECS<Component> ecs, GL_ShadowTexture shadow_texture)
+    public ShadowDebugPass(ECSLayer<Component> ecs, GL_ShadowTexture shadow_texture)
     {
         this.shadow_texture = shadow_texture;
         this.light_space_matrix = Component.LightSpaceMatrix.global(ecs);

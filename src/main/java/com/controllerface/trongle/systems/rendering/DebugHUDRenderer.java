@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.events.CoreEvent;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.events.EventBus;
@@ -65,7 +65,7 @@ public class DebugHUDRenderer extends RenderPass
 
     private final Window window;
 
-    public DebugHUDRenderer(ECS<Component> ecs)
+    public DebugHUDRenderer(ECSLayer<Component> ecs)
     {
         this.window = Component.MainWindow.global(ecs);
 

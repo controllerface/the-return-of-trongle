@@ -2,7 +2,7 @@ package com.controllerface.trongle.systems.rendering.passes.base;
 
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
@@ -39,7 +39,7 @@ public class ParticleRenderPass extends RenderPass
             0.5f,  0.5f, // Top-right
         };
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
     private final GL_Shader shader;
 
@@ -61,7 +61,7 @@ public class ParticleRenderPass extends RenderPass
     private MemorySegment color_segment;
     private MemorySegment transform_segment;
 
-    public ParticleRenderPass(ECS<Component> ecs)
+    public ParticleRenderPass(ECSLayer<Component> ecs)
     {
         this.ecs = ecs;
         shader = GPU.GL.new_shader(resources, "particle");

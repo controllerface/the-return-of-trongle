@@ -2,7 +2,7 @@ package com.controllerface.trongle.components;
 
 import com.controllerface.trongle.systems.behavior.EntityBehavior;
 import com.juncture.alloy.data.*;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.models.ModelRegistry;
 import com.juncture.alloy.models.data.Light;
 import com.juncture.alloy.utils.math.*;
@@ -14,13 +14,13 @@ import org.joml.Vector4f;
 
 public class Archetypes
 {
-    public static void player(ECS<Component> ecs, String entity)
+    public static void player(ECSLayer<Component> ecs, String entity)
     {
         ecs.set_component(entity, Component.Player,   Marker.MARKED);
         ecs.set_component(entity, Component.Behavior, EntityBehavior.PLAYER);
     }
 
-    public static void model(ECS<Component> ecs, String entity, GLTFModel model, float scale)
+    public static void model(ECSLayer<Component> ecs, String entity, GLTFModel model, float scale)
     {
         var model_lights = init_lights(ecs, model, scale);
         ecs.set_component(entity, Component.Model, model);
@@ -32,7 +32,7 @@ public class Archetypes
         ecs.set_component(entity, Component.Transform, new Matrix4f());
     }
 
-    public static void point_light(ECS<Component> ecs, String entity, Light light, float scale)
+    public static void point_light(ECSLayer<Component> ecs, String entity, Light light, float scale)
     {
         ecs.set_component(entity, Component.Light, LightEmitterType.POINT);
         ecs.set_component(entity, Component.Color, new Vector4f(light.data().color(), 1.0f));
@@ -41,7 +41,7 @@ public class Archetypes
         ecs.set_component(entity, Component.LightRange, new MutableFloat(light.data().range() * scale));
     }
 
-    public static void spot_light(ECS<Component> ecs, String entity, Light light, float scale)
+    public static void spot_light(ECSLayer<Component> ecs, String entity, Light light, float scale)
     {
         ecs.set_component(entity, Component.Light, LightEmitterType.SPOT);
         ecs.set_component(entity, Component.Color, new Vector4f(light.data().color(), 1.0f));
@@ -53,7 +53,7 @@ public class Archetypes
         ecs.set_component(entity, Component.LightRange, new MutableFloat(light.data().range() * scale));
     }
 
-    public static void blast_light(ECS<Component> ecs, String entity, Vector3f origin, Vector3f color, float intensity, float range)
+    public static void blast_light(ECSLayer<Component> ecs, String entity, Vector3f origin, Vector3f color, float intensity, float range)
     {
         ecs.set_component(entity, Component.Light, LightEmitterType.POINT);
         ecs.set_component(entity, Component.Color, new Vector4f(color.x, color.y, color.z, 1.0f));
@@ -62,13 +62,13 @@ public class Archetypes
         ecs.set_component(entity, Component.LightRange, new MutableFloat(range));
     }
 
-    public static void destructible(ECS<Component> ecs, String entity, float initial_integrity)
+    public static void destructible(ECSLayer<Component> ecs, String entity, float initial_integrity)
     {
         ecs.set_component(entity, Component.Destructible, Marker.MARKED);
         ecs.set_component(entity, Component.Integrity, new MutableFloat(initial_integrity));
     }
 
-    public static void particle(ECS<Component> ecs,
+    public static void particle(ECSLayer<Component> ecs,
                                 String entity,
                                 Vector3f origin,
                                 Vector3f velocity,
@@ -87,7 +87,7 @@ public class Archetypes
         ecs.set_component(entity, Component.MaxLifetime, new MutableDouble(lifetime));
     }
 
-    public static void explosion(ECS<Component> ecs, String entity, Vector3f origin, Vector3f color, float light_intensity, float light_range, float size, double lifetime)
+    public static void explosion(ECSLayer<Component> ecs, String entity, Vector3f origin, Vector3f color, float light_intensity, float light_range, float size, double lifetime)
     {
         blast_light(ecs, entity, origin, color, light_intensity, light_range);
         ecs.set_component(entity, Component.Explosion, Marker.MARKED);
@@ -97,13 +97,13 @@ public class Archetypes
         ecs.set_component(entity, Component.MaxLifetime, new MutableDouble(lifetime));
     }
 
-    public static void mouse_target(ECS<Component> ecs, String entity, Ray3d ray)
+    public static void mouse_target(ECSLayer<Component> ecs, String entity, Ray3d ray)
     {
         ray_cast(ecs, entity, ray, false);
         ecs.set_component(entity, Component.MouseCollider, Marker.MARKED);
     }
 
-    public static void ray_cast(ECS<Component> ecs, String entity, Ray3d ray, boolean interact)
+    public static void ray_cast(ECSLayer<Component> ecs, String entity, Ray3d ray, boolean interact)
     {
         ecs.set_component(entity, Component.RayCast, ray);
         ecs.set_component(entity, Component.RayCastHit, new Vector3d(ray.endpoint()));
@@ -112,8 +112,7 @@ public class Archetypes
         ecs.set_component(entity, Component.RayCastInteract, interact);
     }
 
-    public static void hit_scan_projectile(ECS<Component> ecs,
-                                           ECS<Component> pecs,
+    public static void hit_scan_projectile(ECSLayer<Component> ecs,
                                            String entity,
                                            Ray3d ray,
                                            Vector3f tip_color,
@@ -124,7 +123,7 @@ public class Archetypes
                                            double lifetime)
     {
         var trail_quad = MathEX.generate_tracer_quad(ray, 1f);
-        ray_cast(pecs, entity, ray, true);
+        ray_cast(ecs, entity, ray, true);
         blast_light(ecs, entity, new Vector3f(ray.origin()), tip_color, light_intensity, light_range);
         ecs.set_component(entity, Component.HitScanWeapon, Marker.MARKED);
         ecs.set_component(entity, Component.Projectile, Marker.MARKED);
@@ -139,7 +138,7 @@ public class Archetypes
         ecs.set_component(entity, Component.HitScanTrailRender, trail_quad.copy());
     }
 
-    public static void physics(ECS<Component> ecs,
+    public static void physics(ECSLayer<Component> ecs,
                                String entity,
                                float mass,
                                float inertia,
@@ -187,7 +186,7 @@ public class Archetypes
         ecs.set_component(entity, Component.Yaw,                 new MutableFloat());
     }
 
-    private static MutableConvexHull[] init_hulls(ECS<Component> ecs, String parent_entity)
+    private static MutableConvexHull[] init_hulls(ECSLayer<Component> ecs, String parent_entity)
     {
         var model = Component.Model.<GLTFModel>for_entity(ecs, parent_entity);
         var models = Component.Models.<ModelRegistry<GLTFModel>>global(ecs);
@@ -203,7 +202,7 @@ public class Archetypes
         return mutable_hulls;
     }
 
-    private static String[] init_lights(ECS<Component> ecs, GLTFModel model, float scale)
+    private static String[] init_lights(ECSLayer<Component> ecs, GLTFModel model, float scale)
     {
         var models = Component.Models.<ModelRegistry<GLTFModel>>global(ecs);
         var lights = models.get(model).lights();

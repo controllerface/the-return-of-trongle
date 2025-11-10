@@ -3,7 +3,7 @@ package com.controllerface.trongle.systems.rendering.passes.base;
 import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.data.MutableInt;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_ShaderStorageBuffer;
@@ -53,7 +53,7 @@ public class LightRenderPass extends RenderPass
     private int max_point_lights;
     private int max_spot_lights;
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
     private GL_Shader dbg_shader;
     private GL_VertexArray dbg_vao;
@@ -69,7 +69,7 @@ public class LightRenderPass extends RenderPass
     private MemorySegment point_segment;
     private MemorySegment spot_segment;
 
-    public LightRenderPass(ECS<Component> ecs)
+    public LightRenderPass(ECSLayer<Component> ecs)
     {
         this.ecs = ecs;
 

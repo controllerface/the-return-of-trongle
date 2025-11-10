@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.Renderer;
@@ -58,7 +58,7 @@ public class GeometryRenderer extends Renderer<Component>
         }
     }
 
-    public GeometryRenderer(ECS<Component> _ecs)
+    public GeometryRenderer(ECSLayer<Component> _ecs)
     {
         super(_ecs);
 

@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.input;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;
 
@@ -10,7 +10,7 @@ public class InputSystem extends ECSSystem<Component>
 {
     private final InputState input_state;
 
-    public InputSystem(ECS<Component> ecs)
+    public InputSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
         input_state = new InputState();

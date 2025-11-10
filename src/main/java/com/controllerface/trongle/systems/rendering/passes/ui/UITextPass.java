@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering.passes.ui;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.TextGlyph;
@@ -69,7 +69,7 @@ public class UITextPass extends RenderPass
 
     private float max_char_height = 0;
 
-    public UITextPass(ECS<Component> ecs, UITemplate ui_template)
+    public UITextPass(ECSLayer<Component> ecs, UITemplate ui_template)
     {
         this.window = Component.MainWindow.global(ecs);
         this.ui_template = ui_template;

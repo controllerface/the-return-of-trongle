@@ -1,7 +1,7 @@
 package com.controllerface.trongle.systems.camera;
 
 import com.juncture.alloy.camera.WorldCamera;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.GPUResourceGroup;
@@ -23,7 +23,7 @@ public class UniformViewSystem extends ECSSystem<Component>
 
     private final GPUResourceGroup resources = new GPUResourceGroup();
 
-    public UniformViewSystem(ECS<Component> ecs)
+    public UniformViewSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
         camera = Component.MainCamera.global(ecs);

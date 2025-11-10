@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.Renderer;
 import com.controllerface.trongle.components.Component;
@@ -12,7 +12,7 @@ public class DebugRenderingSystem extends ECSSystem<Component>
 {
     private final List<Renderer<Component>> renderers = new ArrayList<>();
 
-    public DebugRenderingSystem(ECS<Component> _ecs)
+    public DebugRenderingSystem(ECSLayer<Component> _ecs)
     {
         super(_ecs);
         renderers.add(new DebugRenderer(ecs));

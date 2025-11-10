@@ -1,14 +1,14 @@
 package com.controllerface.trongle.systems.rendering;
 
 import com.controllerface.trongle.systems.physics.PhysicsSystem;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
 
 public class ParticleSystem extends ECSSystem<Component>
 {
-    public ParticleSystem(ECS<Component> ecs)
+    public ParticleSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
     }

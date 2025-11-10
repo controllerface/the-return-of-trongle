@@ -1,7 +1,7 @@
 package com.controllerface.trongle.systems.rendering.passes.base;
 
 import com.juncture.alloy.data.MutableDouble;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_CommandBuffer;
@@ -54,7 +54,7 @@ public class HitScanWeaponRenderPass extends RenderPass
     private int ray_count = 0;
     private int max_vert_count = 0;
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
     private Arena memory_arena = Arena.ofConfined();
     private MemorySegment cmd_segment;
@@ -63,7 +63,7 @@ public class HitScanWeaponRenderPass extends RenderPass
     private MemorySegment color_segment;
     private MemorySegment pos_segment;
 
-    public HitScanWeaponRenderPass(ECS<Component> ecs)
+    public HitScanWeaponRenderPass(ECSLayer<Component> ecs)
     {
         this.ecs = ecs;
         shader = GPU.GL.new_shader(resources, "hit_scan_weapon");

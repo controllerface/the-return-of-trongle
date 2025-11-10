@@ -2,7 +2,7 @@ package com.controllerface.trongle.systems.rendering.passes.base;
 
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
@@ -48,7 +48,7 @@ public class ExplosionRenderPass extends RenderPass
             1.0f, 1.0f, // Top-right
         };
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
     private final GL_Shader shader;
 
@@ -69,7 +69,7 @@ public class ExplosionRenderPass extends RenderPass
     private MemorySegment life_segment;
     private MemorySegment transform_segment;
 
-    public ExplosionRenderPass(ECS<Component> ecs)
+    public ExplosionRenderPass(ECSLayer<Component> ecs)
     {
         this.ecs = ecs;
         shader = GPU.GL.new_shader(resources, "explosion");

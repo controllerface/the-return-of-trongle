@@ -2,7 +2,7 @@ package com.controllerface.trongle.systems.camera;
 
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.gl.textures.GL_ShadowTexture;
 import com.controllerface.trongle.components.Component;
@@ -28,7 +28,7 @@ public class LightSpaceSystem extends ECSSystem<Component>
     private final Vector3f moon_direction;
     private final MutableFloat time_of_day;
 
-    public LightSpaceSystem(ECS<Component> ecs)
+    public LightSpaceSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
 

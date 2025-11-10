@@ -1,13 +1,13 @@
 package com.controllerface.trongle.systems.behavior;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.systems.behavior.behaviors.PlayerBehavior;
 
 public class EntityBehaviorSystem extends ECSSystem<Component>
 {
-    public EntityBehaviorSystem(ECS<Component> ecs)
+    public EntityBehaviorSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
     }

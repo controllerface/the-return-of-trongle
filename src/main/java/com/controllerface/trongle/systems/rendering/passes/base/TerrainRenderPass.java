@@ -2,7 +2,7 @@ package com.controllerface.trongle.systems.rendering.passes.base;
 
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_CommandBuffer;
@@ -115,7 +115,7 @@ public class TerrainRenderPass extends RenderPass
 
     private final MutableFloat time_index;
 
-    public TerrainRenderPass(ECS<Component> ecs)
+    public TerrainRenderPass(ECSLayer<Component> ecs)
     {
         this.camera = Component.MainCamera.global(ecs);
         this.time_index = Component.TimeIndex.global(ecs);

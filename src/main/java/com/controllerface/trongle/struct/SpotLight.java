@@ -3,7 +3,7 @@ package com.controllerface.trongle.struct;
 import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
 import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
@@ -40,7 +40,7 @@ public class SpotLight
     private static final VarHandle inner_cone = var_handle(LAYOUT, IN_CONE);
     private static final VarHandle outer_cone = var_handle(LAYOUT, OUT_CONE);
 
-    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECS<Component> ecs, String entity)
+    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs, String entity)
     {
         var emitter   = Component.Light.<LightEmitterType>for_entity(ecs, entity);
         var color     = Component.Color.<Vector4f>for_entity(ecs, entity);

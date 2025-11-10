@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering.passes.debug;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
@@ -39,9 +39,9 @@ public class BoundingBoxRenderPass extends RenderPass
 
     private int box_count = 0;
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
-    public BoundingBoxRenderPass(ECS<Component> ecs)
+    public BoundingBoxRenderPass(ECSLayer<Component> ecs)
     {
         this.ecs = ecs;
         shader = GPU.GL.new_shader(resources, "aabb");

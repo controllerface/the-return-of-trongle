@@ -1,7 +1,7 @@
 package com.controllerface.trongle.systems.rendering.passes.base;
 
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
@@ -44,7 +44,7 @@ public class CloudRenderPass extends RenderPass
 
     private final MutableFloat time_index;
 
-    public CloudRenderPass(ECS<Component> ecs, GL_ShadowTexture shadow_texture)
+    public CloudRenderPass(ECSLayer<Component> ecs, GL_ShadowTexture shadow_texture)
     {
         this.shadow_texture = shadow_texture;
         this.light_space_matrix = Component.LightSpaceMatrix.global(ecs);

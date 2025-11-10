@@ -1,7 +1,7 @@
 package com.controllerface.trongle.main;
 
 import com.juncture.alloy.camera.WorldCamera;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.game.GameContext;
@@ -21,13 +21,13 @@ public class Trongle extends GameContext
     private final GameMode main_menu;
     private final GameMode base_game;
 
-    private final ECS<Component> ecs1;
+    private final ECSLayer<Component> ecs1;
 
     public Trongle()
     {
         super("The Return of Trongle - Prototype", Component.class);
 
-        ecs1 = new ECS<>(Component.class);
+        ecs1 = new ECSLayer<>(Component.class);
         ecs.register(Component.class, ecs1);
 
         ecs1.set_global(Component.Events, event_bus);

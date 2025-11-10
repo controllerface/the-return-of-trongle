@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.Renderer;
 import com.controllerface.trongle.components.Component;
@@ -22,7 +22,7 @@ public class DebugRenderer extends Renderer<Component>
     private final RenderPass render_aabb_pass;
     private final RenderPass hud_pass;
 
-    public DebugRenderer(ECS<Component> ecs)
+    public DebugRenderer(ECSLayer<Component> ecs)
     {
         super(ecs);
         hull_pass = resources.track(new ConvexHullRenderPass(ecs));

@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.events.CoreEvent;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.events.EventBus;
@@ -64,7 +64,7 @@ public class MenuRenderer extends Renderer<Component>
 
     private final Window window;
 
-    public MenuRenderer(ECS<Component> _ecs)
+    public MenuRenderer(ECSLayer<Component> _ecs)
     {
         super(_ecs);
         this.window = Component.MainWindow.global(ecs);

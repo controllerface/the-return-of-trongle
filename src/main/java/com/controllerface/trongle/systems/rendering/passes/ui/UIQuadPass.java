@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering.passes.ui;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.Window;
@@ -56,7 +56,7 @@ public class UIQuadPass extends RenderPass
 
     private boolean dirty  = true;
 
-    public UIQuadPass(ECS<Component> ecs, UITemplate ui_template)
+    public UIQuadPass(ECSLayer<Component> ecs, UITemplate ui_template)
     {
         this.ui_template = ui_template;
         this.window = Component.MainWindow.global(ecs);

@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.Renderer;
 import com.juncture.alloy.gpu.gl.GL_GraphicsController;
@@ -19,7 +19,7 @@ public class RenderingSystem extends ECSSystem<Component>
     private final List<Renderer<Component>> renderers = new ArrayList<>();
     private final GL_GraphicsController gl_controller;
 
-    public RenderingSystem(ECS<Component> _ecs, GL_GraphicsController gl_controller)
+    public RenderingSystem(ECSLayer<Component> _ecs, GL_GraphicsController gl_controller)
     {
         super(_ecs);
 

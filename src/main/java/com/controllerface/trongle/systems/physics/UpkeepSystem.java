@@ -4,7 +4,7 @@ import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableBoolean;
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.events.EventBus;
 import com.juncture.alloy.utils.math.MathEX;
@@ -50,7 +50,7 @@ public class UpkeepSystem extends ECSSystem<Component>
 
     private final EventBus event_bus;
 
-    public UpkeepSystem(ECS<Component> ecs)
+    public UpkeepSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
         MathEX.generate_octal_spread(BLAST_PARTICLE_VECTORS);

@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.Renderer;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
@@ -37,7 +37,7 @@ public class MenuBGRenderer extends Renderer<Component>
             1.0f, 1.0f, // top-right
         };
 
-    public MenuBGRenderer(ECS<Component> _ecs, GL_Texture bg_texture)
+    public MenuBGRenderer(ECSLayer<Component> _ecs, GL_Texture bg_texture)
     {
         super(_ecs);
         this.bg_texture = bg_texture;

@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering.passes.base;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.RenderSet;
@@ -48,7 +48,7 @@ public class ModelRenderPass extends RenderPass
     private static final int MATERIAL_ATTRIBUTE  = 6;
     private static final int MODEL_ID_ATTRIBUTE  = 7;
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
     private final Window window;
     private final Matrix4f light_space_matrix;
 
@@ -95,7 +95,7 @@ public class ModelRenderPass extends RenderPass
     private MemorySegment model_matrix_segment;
     private MemorySegment mesh_matrix_segment;
 
-    public ModelRenderPass(ECS<Component> ecs, GL_CubeMap skybox_texture, GL_CubeMap skybox_texture_dark, GL_ShadowTexture shadow_texture)
+    public ModelRenderPass(ECSLayer<Component> ecs, GL_CubeMap skybox_texture, GL_CubeMap skybox_texture_dark, GL_ShadowTexture shadow_texture)
     {
         this.ecs = ecs;
         this.skybox_texture = skybox_texture;

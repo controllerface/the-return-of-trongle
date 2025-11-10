@@ -3,7 +3,7 @@ package com.controllerface.trongle.struct;
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.data.MutableInt;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -35,7 +35,7 @@ public class GlobalLight
     private static final VarHandle point_light_count = var_handle(LAYOUT, "point_light_count");
     private static final VarHandle spot_light_count  = var_handle(LAYOUT, "spot_light_count");
 
-    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECS<Component> ecs)
+    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs)
     {
         var sun_light_entity = ecs.get_first_entity(Component.SunLight);
         var moon_light_entity = ecs.get_first_entity(Component.MoonLight);

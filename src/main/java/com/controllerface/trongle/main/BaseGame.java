@@ -1,7 +1,7 @@
 package com.controllerface.trongle.main;
 
 import com.juncture.alloy.data.*;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.Event;
@@ -56,11 +56,11 @@ public class BaseGame extends GameMode
 
     private final GL_GraphicsController gl_controller;
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
     private final List<ECSSystem<Component>> systems = new ArrayList<>();
 
-    public BaseGame(ECS<Component> ecs1, GL_GraphicsController glController)
+    public BaseGame(ECSLayer<Component> ecs1, GL_GraphicsController glController)
     {
         ecs = ecs1;
         gl_controller = glController;

@@ -5,7 +5,7 @@ import com.juncture.alloy.data.MutableBoolean;
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.data.MutableInt;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.Window;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.Ray3d;
@@ -82,7 +82,7 @@ public class PlayerBehavior
         }
     }
 
-    private static void handle_mouse_inputs(ECS<Component> ecs, String entity_id, Vector3d position, InputState input_state)
+    private static void handle_mouse_inputs(ECSLayer<Component> ecs, String entity_id, Vector3d position, InputState input_state)
     {
         var mouse_ray_entity = Component.MouseRay.<String>global(ecs);
         var mouse_ray        = Component.RayCast.<Ray3d>for_entity(ecs, mouse_ray_entity);
@@ -111,7 +111,7 @@ public class PlayerBehavior
         }
     }
 
-    private static void handle_aiming(ECS<Component> ecs, InputState input_state, Ray3d mouse_ray)
+    private static void handle_aiming(ECSLayer<Component> ecs, InputState input_state, Ray3d mouse_ray)
     {
         var window = Component.MainWindow.<Window>global(ecs);
         var camera = Component.MainCamera.<WorldCamera>global(ecs);
@@ -155,7 +155,7 @@ public class PlayerBehavior
         mouse_ray.inv_direction().set(target_vec3_buffer);
     }
 
-    public static void behave(double dt, ECS<Component> ecs, String entity_id)
+    public static void behave(double dt, ECSLayer<Component> ecs, String entity_id)
     {
         var input_state   = Component.Input.<InputState>global(ecs);
         var velocity      = Component.Velocity.<Vector3d>for_entity(ecs, entity_id);

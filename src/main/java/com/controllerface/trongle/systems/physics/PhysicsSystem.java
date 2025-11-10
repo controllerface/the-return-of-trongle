@@ -3,7 +3,7 @@ package com.controllerface.trongle.systems.physics;
 import com.juncture.alloy.data.MutableBoolean;
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.physics.algorithms.GJK;
 import com.juncture.alloy.physics.algorithms.MTA;
@@ -53,7 +53,7 @@ public class PhysicsSystem extends ECSSystem<Component>
     {
     }
 
-    public PhysicsSystem(ECS<Component> _ecs)
+    public PhysicsSystem(ECSLayer<Component> _ecs)
     {
         super(_ecs);
         simulation_remainder = Component.SimulationRemainder.global(ecs);

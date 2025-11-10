@@ -3,7 +3,7 @@ package com.controllerface.trongle.systems.physics;
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.MutableDouble;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.RenderSet;
 import com.juncture.alloy.models.ModelRegistry;
@@ -40,7 +40,7 @@ public class TransformUpdateSystem extends ECSSystem<Component>
     private final WorldCamera camera;
     private final RenderSet render_set = new RenderSet();
 
-    public TransformUpdateSystem(ECS<Component> _ecs)
+    public TransformUpdateSystem(ECSLayer<Component> _ecs)
     {
         super(_ecs);
         this.camera = Component.MainCamera.global(ecs);

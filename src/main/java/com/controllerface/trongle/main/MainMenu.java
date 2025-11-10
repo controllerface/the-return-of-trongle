@@ -1,6 +1,6 @@
 package com.controllerface.trongle.main;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.EventBus;
 import com.controllerface.trongle.components.Component;
@@ -17,9 +17,9 @@ public class MainMenu extends GameMode
     boolean latched = false;
     boolean first_load = true;
 
-    private final ECS<Component> ecs;
+    private final ECSLayer<Component> ecs;
 
-    public MainMenu(ECS<Component> _ecs)
+    public MainMenu(ECSLayer<Component> _ecs)
     {
         this.ecs = _ecs;
     }

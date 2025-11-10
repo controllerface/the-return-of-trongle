@@ -2,7 +2,7 @@ package com.controllerface.trongle.components;
 
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.*;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSComponent;
 import com.juncture.alloy.events.EventBus;
 import com.juncture.alloy.gpu.RenderSet;
@@ -173,7 +173,7 @@ public enum Component implements ECSComponent<Component>
     }
 
     @Override
-    public <T> T for_entity(ECS<Component> ecs, String entity)
+    public <T> T for_entity(ECSLayer<Component> ecs, String entity)
     {
         var component_object = ecs.get_component_for(entity, this);
         assert component_object != null : "entity: " + entity + " has no: " + this + " component";
@@ -181,22 +181,22 @@ public enum Component implements ECSComponent<Component>
     }
 
     @Override
-    public <T> T for_entity_or_null(ECS<Component> ecs, String entity)
+    public <T> T for_entity_or_null(ECSLayer<Component> ecs, String entity)
     {
         var component_object = ecs.get_component_for(entity, this);
         return component_object == null ? null : coerce(component_object);
     }
 
     @Override
-    public <T> T global(ECS<Component> ecs)
+    public <T> T global(ECSLayer<Component> ecs)
     {
-        return for_entity(ecs, ECS.GLOBAL_ENTITY);
+        return for_entity(ecs, ECSLayer.GLOBAL_ENTITY);
     }
 
     @Override
-    public <T> T global_or_null(ECS<Component> ecs)
+    public <T> T global_or_null(ECSLayer<Component> ecs)
     {
-        return for_entity_or_null(ecs, ECS.GLOBAL_ENTITY);
+        return for_entity_or_null(ecs, ECSLayer.GLOBAL_ENTITY);
     }
 
     @Override

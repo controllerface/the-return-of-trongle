@@ -3,7 +3,7 @@ package com.controllerface.trongle.struct;
 import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
 import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
@@ -37,7 +37,7 @@ public class PointLight
 
     private static final VarHandle _range = var_handle(LAYOUT, RANGE);
 
-    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECS<Component> ecs, String entity)
+    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs, String entity)
     {
         var emitter = Component.Light.<LightEmitterType>for_entity(ecs, entity);
         assert emitter == LightEmitterType.POINT;

@@ -2,7 +2,7 @@ package com.controllerface.trongle.systems.camera;
 
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.MutableFloat;
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.Window;
 import com.controllerface.trongle.components.Component;
@@ -27,7 +27,7 @@ public class CameraSystem extends ECSSystem<Component>
     private final WorldCamera camera;
     private final Window window;
 
-    public CameraSystem(ECS<Component> ecs)
+    public CameraSystem(ECSLayer<Component> ecs)
     {
         super(ecs);
 

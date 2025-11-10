@@ -1,6 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.GPUResourceGroup;
@@ -24,7 +24,7 @@ public class MenuRenderSystem extends ECSSystem<Component>
 
     private final Window window;
 
-    public MenuRenderSystem(ECS<Component> _ecs)
+    public MenuRenderSystem(ECSLayer<Component> _ecs)
     {
         super(_ecs);
 
