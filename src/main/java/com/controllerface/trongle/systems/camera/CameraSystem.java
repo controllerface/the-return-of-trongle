@@ -16,6 +16,8 @@ public class CameraSystem extends ECSSystem<Component>
     private static final float YAW_RANGE    =  25f;
     private static final float ZOOM_MIN     =  25f;
     private static final float ZOOM_MAX     =  50f;
+    private static final float ZOOM_SPEED   =  10.0f;
+    private static final float ZOOM_RATE    =  0.001f;
 
     private final MutableFloat delta_yaw      = new MutableFloat(0);
     private final MutableFloat delta_pitch    = new MutableFloat(0);
@@ -37,6 +39,7 @@ public class CameraSystem extends ECSSystem<Component>
 
         camera.set_pitch_range(CENTER_PITCH - PITCH_RANGE, CENTER_PITCH + PITCH_RANGE);
         camera.set_yaw_range(CENTER_YAW - YAW_RANGE, CENTER_YAW + YAW_RANGE);
+        camera.set_zoom_speed_limits(ZOOM_SPEED, ZOOM_RATE);
         camera.set_zoom_distance_limits(ZOOM_MIN, ZOOM_MAX);
 
         camera.set_pitch(CENTER_PITCH);

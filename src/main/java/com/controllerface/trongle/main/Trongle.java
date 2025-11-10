@@ -1,6 +1,7 @@
 package com.controllerface.trongle.main;
 
 import com.juncture.alloy.camera.WorldCamera;
+import com.juncture.alloy.ecs.ECS;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.game.GameContext;
@@ -13,29 +14,34 @@ import com.controllerface.trongle.systems.input.InputSystem;
 
 import java.util.logging.Logger;
 
-public class Trongle extends GameContext<Component>
+public class Trongle extends GameContext
 {
     private static final Logger LOGGER = Logger.getLogger(Trongle.class.getName());
 
-    private final GameMode<Component> main_menu;
-    private final GameMode<Component> base_game;
+    private final GameMode main_menu;
+    private final GameMode base_game;
+
+    private final ECS<Component> ecs1;
 
     public Trongle()
     {
-        super(Component.class, "The Return of Trongle - Prototype");
+        super("The Return of Trongle - Prototype", Component.class);
 
-        ecs.set_global(Component.Events, event_bus);
-        ecs.set_global(Component.MainWindow, window);
-        ecs.set_global(Component.MainCamera, new WorldCamera(window, event_bus));
-        ecs.set_global(Component.Models, new ModelRegistry<>(GLTFModel.class, "/models/"));
+        ecs1 = new ECS<>(Component.class);
+        ecs.register(Component.class, ecs1);
 
-        ecs.register_system(new InputSystem(ecs));
-        ecs.register_system(new UniformViewSystem(ecs));
+        ecs1.set_global(Component.Events, event_bus);
+        ecs1.set_global(Component.MainWindow, window);
+        ecs1.set_global(Component.MainCamera, new WorldCamera(window, event_bus));
+        ecs1.set_global(Component.Models, new ModelRegistry<>(GLTFModel.class, "/models/"));
+
+        ecs1.register_system(new InputSystem(ecs1));
+        ecs1.register_system(new UniformViewSystem(ecs1));
 
         event_bus.register(event_queue, GameEvent.MODE_SWiTCH);
 
-        base_game = new BaseGame(ecs, gl_controller());
-        main_menu = new MainMenu(ecs);
+        base_game = new BaseGame(ecs1, gl_controller());
+        main_menu = new MainMenu(ecs1);
 
         main_menu.init();
         base_game.init();

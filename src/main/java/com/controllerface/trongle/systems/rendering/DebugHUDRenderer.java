@@ -115,7 +115,7 @@ public class DebugHUDRenderer extends RenderPass
                 "0", 350, 350, .75f));
 
         text_boxes.put("title", new TextContainer(SnapPosition.BOTTOM_LEFT,
-            "IsoMetrika (Working Title) - Prototype", 100, 100, .75f));
+            "The Return of Trongle - Prototype", 100, 100, .75f));
 
         text_boxes.put("fps_label", new TextContainer(SnapPosition.BOTTOM_RIGHT,
             "FPS", 100, 100, .75f));

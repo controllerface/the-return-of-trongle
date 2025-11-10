@@ -113,6 +113,7 @@ public class Archetypes
     }
 
     public static void hit_scan_projectile(ECS<Component> ecs,
+                                           ECS<Component> pecs,
                                            String entity,
                                            Ray3d ray,
                                            Vector3f tip_color,
@@ -123,7 +124,7 @@ public class Archetypes
                                            double lifetime)
     {
         var trail_quad = MathEX.generate_tracer_quad(ray, 1f);
-        ray_cast(ecs, entity, ray, true);
+        ray_cast(pecs, entity, ray, true);
         blast_light(ecs, entity, new Vector3f(ray.origin()), tip_color, light_intensity, light_range);
         ecs.set_component(entity, Component.HitScanWeapon, Marker.MARKED);
         ecs.set_component(entity, Component.Projectile, Marker.MARKED);

@@ -1,5 +1,6 @@
 package com.controllerface.trongle.systems.rendering;
 
+import com.controllerface.trongle.systems.physics.PhysicsSystem;
 import com.juncture.alloy.ecs.ECS;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;

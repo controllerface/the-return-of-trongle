@@ -9,7 +9,7 @@ import com.controllerface.trongle.systems.input.InputBinding;
 import com.controllerface.trongle.systems.input.InputState;
 import com.controllerface.trongle.systems.rendering.MenuRenderSystem;
 
-public class MainMenu extends GameMode<Component>
+public class MainMenu extends GameMode
 {
     private InputState input_state;
     private EventBus event_bus;
@@ -17,9 +17,11 @@ public class MainMenu extends GameMode<Component>
     boolean latched = false;
     boolean first_load = true;
 
+    private final ECS<Component> ecs;
+
     public MainMenu(ECS<Component> _ecs)
     {
-        super(_ecs);
+        this.ecs = _ecs;
     }
 
     private MenuRenderSystem rendering_system;

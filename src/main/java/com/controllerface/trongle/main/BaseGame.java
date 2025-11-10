@@ -2,6 +2,7 @@ package com.controllerface.trongle.main;
 
 import com.juncture.alloy.data.*;
 import com.juncture.alloy.ecs.ECS;
+import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.events.EventBus;
@@ -30,7 +31,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class BaseGame extends GameMode<Component>
+public class BaseGame extends GameMode
 {
     private static final boolean DEBUG_MODE = true;
 
@@ -55,9 +56,13 @@ public class BaseGame extends GameMode<Component>
 
     private final GL_GraphicsController gl_controller;
 
-    public BaseGame(ECS<Component> ecs, GL_GraphicsController glController)
+    private final ECS<Component> ecs;
+
+    private final List<ECSSystem<Component>> systems = new ArrayList<>();
+
+    public BaseGame(ECS<Component> ecs1, GL_GraphicsController glController)
     {
-        super(ecs);
+        ecs = ecs1;
         gl_controller = glController;
     }
 
@@ -157,8 +162,14 @@ public class BaseGame extends GameMode<Component>
     @Override
     public void activate()
     {
-        super.activate();
         latched = true;
+        systems.forEach(ecs::register_system);
+    }
+
+    @Override
+    public void deactivate()
+    {
+        systems.forEach(ecs::deregister_system);
     }
 
     @Override
