@@ -3,16 +3,20 @@ package com.controllerface.trongle.systems.input;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;
+import com.juncture.alloy.ecs.ECSWorld;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class InputSystem extends ECSSystem<Component>
+public class InputSystem extends ECSSystem
 {
     private final InputState input_state;
 
-    public InputSystem(ECSLayer<Component> ecs)
+    private final ECSLayer<Component> ecs;
+
+    public InputSystem(ECSWorld world)
     {
-        super(ecs);
+        super(world);
+        ecs = world.get(Component.class);
         input_state = new InputState();
         ecs.set_global(Component.Input, input_state);
         init_callbacks();

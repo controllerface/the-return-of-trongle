@@ -4,12 +4,14 @@ import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.gl.textures.GL_ShadowTexture;
 import com.controllerface.trongle.components.Component;
+import com.juncture.alloy.rendering.RenderComponent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
-public class LightSpaceSystem extends ECSSystem<Component>
+public class LightSpaceSystem extends ECSSystem
 {
     private static final float ORTHO_FACTOR       = 1.5f;
     private static final float DIR_LIGHT_DISTANCE = 25.0f;
@@ -28,13 +30,19 @@ public class LightSpaceSystem extends ECSSystem<Component>
     private final Vector3f moon_direction;
     private final MutableFloat time_of_day;
 
-    public LightSpaceSystem(ECSLayer<Component> ecs)
+    private final ECSLayer<Component> ecs;
+    private final ECSLayer<RenderComponent> recs;
+
+    public LightSpaceSystem(ECSWorld world)
     {
-        super(ecs);
+        super(world);
 
-        camera = Component.MainCamera.global(ecs);
+        ecs = world.get(Component.class);
+        recs = world.get(RenderComponent.class);
 
-        ecs.set_global(Component.LightSpaceMatrix, light_space_matrix);
+        camera = RenderComponent.MainCamera.global(recs);
+
+        recs.set_global(RenderComponent.LightSpaceMatrix, light_space_matrix);
 
         var player = ecs.get_first_entity(Component.Player);
         assert player != null;
@@ -45,8 +53,8 @@ public class LightSpaceSystem extends ECSSystem<Component>
         assert sun_light_entity != null;
         assert moon_light_entity != null;
 
-        sun_direction  = Component.Direction.for_entity(ecs, sun_light_entity);
-        moon_direction = Component.Direction.for_entity(ecs, moon_light_entity);
+        sun_direction  = RenderComponent.Direction.for_entity(recs, sun_light_entity);
+        moon_direction = RenderComponent.Direction.for_entity(recs, moon_light_entity);
         time_of_day    = Component.TimeOfDay.global(ecs);
     }
 

@@ -10,11 +10,11 @@ import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
 import com.juncture.alloy.gpu.gl.textures.GL_TextureArray;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.ui.UITemplate;
 import com.juncture.alloy.utils.memory.glsl.Float;
 import com.juncture.alloy.utils.memory.glsl.Vec2;
 import com.juncture.alloy.utils.memory.opengl.DrawArraysIndirectCommand;
-import com.controllerface.trongle.components.Component;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -69,9 +69,9 @@ public class UITextPass extends RenderPass
 
     private float max_char_height = 0;
 
-    public UITextPass(ECSLayer<Component> ecs, UITemplate ui_template)
+    public UITextPass(ECSLayer<RenderComponent> recs, UITemplate ui_template)
     {
-        this.window = Component.MainWindow.global(ecs);
+        this.window = RenderComponent.MainWindow.global(recs);
         this.ui_template = ui_template;
         this.glyph_count = this.ui_template.getCharacter_count();
 

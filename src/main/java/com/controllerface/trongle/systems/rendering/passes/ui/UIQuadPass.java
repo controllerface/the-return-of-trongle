@@ -8,11 +8,11 @@ import com.juncture.alloy.gpu.gl.buffers.GL_CommandBuffer;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.ui.UITemplate;
 import com.juncture.alloy.utils.memory.glsl.Vec2;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
 import com.juncture.alloy.utils.memory.opengl.DrawArraysIndirectCommand;
-import com.controllerface.trongle.components.Component;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -56,10 +56,10 @@ public class UIQuadPass extends RenderPass
 
     private boolean dirty  = true;
 
-    public UIQuadPass(ECSLayer<Component> ecs, UITemplate ui_template)
+    public UIQuadPass(ECSLayer<RenderComponent> recs, UITemplate ui_template)
     {
         this.ui_template = ui_template;
-        this.window = Component.MainWindow.global(ecs);
+        this.window = RenderComponent.MainWindow.global(recs);
         this.quad_count = this.ui_template.ui_quads().size();
 
         var command_buffer_size = DrawArraysIndirectCommand.calculate_buffer_size(quad_count);

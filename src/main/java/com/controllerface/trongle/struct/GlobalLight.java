@@ -5,6 +5,7 @@ import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.data.MutableInt;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.controllerface.trongle.components.Component;
+import com.juncture.alloy.rendering.RenderComponent;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -35,7 +36,7 @@ public class GlobalLight
     private static final VarHandle point_light_count = var_handle(LAYOUT, "point_light_count");
     private static final VarHandle spot_light_count  = var_handle(LAYOUT, "spot_light_count");
 
-    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs)
+    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
     {
         var sun_light_entity = ecs.get_first_entity(Component.SunLight);
         var moon_light_entity = ecs.get_first_entity(Component.MoonLight);
@@ -45,17 +46,17 @@ public class GlobalLight
 
         long offset = index * LAYOUT.byteSize();
 
-        var sun_color      = Component.Color.<Vector4f>for_entity(ecs, sun_light_entity);
-        var sun_direction  = Component.Direction.<Vector3f>for_entity(ecs, sun_light_entity);
-        var sun_intensity  = Component.LightIntensity.<LightIntensity>for_entity(ecs, sun_light_entity);
+        var sun_color      = RenderComponent.Color.<Vector4f>for_entity(recs, sun_light_entity);
+        var sun_direction  = RenderComponent.Direction.<Vector3f>for_entity(recs, sun_light_entity);
+        var sun_intensity  = RenderComponent.LightIntensity.<LightIntensity>for_entity(recs, sun_light_entity);
 
-        var moon_color     = Component.Color.<Vector4f>for_entity(ecs, moon_light_entity);
-        var moon_direction = Component.Direction.<Vector3f>for_entity(ecs, moon_light_entity);
-        var moon_intensity = Component.LightIntensity.<LightIntensity>for_entity(ecs, moon_light_entity);
+        var moon_color     = RenderComponent.Color.<Vector4f>for_entity(recs, moon_light_entity);
+        var moon_direction = RenderComponent.Direction.<Vector3f>for_entity(recs, moon_light_entity);
+        var moon_intensity = RenderComponent.LightIntensity.<LightIntensity>for_entity(recs, moon_light_entity);
 
         var tod            = Component.TimeOfDay.<MutableFloat>global(ecs);
-        var point_lights   = Component.PointLightCount.<MutableInt>global(ecs);
-        var spot_lights    = Component.SpotLightCount.<MutableInt>global(ecs);
+        var point_lights   = RenderComponent.PointLightCount.<MutableInt>global(recs);
+        var spot_lights    = RenderComponent.SpotLightCount.<MutableInt>global(recs);
 
         DirectionalLight.map_at_offset(light_segment, offset + sun_offset, sun_color, sun_direction, sun_intensity);
         DirectionalLight.map_at_offset(light_segment, offset + moon_offset, moon_color, moon_direction, moon_intensity);

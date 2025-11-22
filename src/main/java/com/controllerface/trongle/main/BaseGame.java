@@ -3,10 +3,16 @@ package com.controllerface.trongle.main;
 import com.juncture.alloy.data.*;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.events.EventBus;
 import com.juncture.alloy.gpu.gl.GL_GraphicsController;
+import com.juncture.alloy.rendering.RenderComponent;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.physics.PhysicsSystem;
+import com.juncture.alloy.physics.PhysicsTypes;
+import com.juncture.alloy.rendering.RenderTypes;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.Ray3d;
 import com.controllerface.trongle.components.*;
@@ -17,7 +23,6 @@ import com.controllerface.trongle.systems.camera.CameraSystem;
 import com.controllerface.trongle.systems.camera.LightSpaceSystem;
 import com.controllerface.trongle.systems.input.InputBinding;
 import com.controllerface.trongle.systems.input.InputState;
-import com.controllerface.trongle.systems.physics.PhysicsSystem;
 import com.controllerface.trongle.systems.physics.TransformUpdateSystem;
 import com.controllerface.trongle.systems.physics.UpkeepSystem;
 import com.controllerface.trongle.systems.rendering.DebugRenderingSystem;
@@ -33,7 +38,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BaseGame extends GameMode
 {
-    private static final boolean DEBUG_MODE = true;
+    private static final boolean DEBUG_MODE = false;
 
     private final Queue<Event> event_queue = new LinkedBlockingQueue<>();
 
@@ -57,56 +62,61 @@ public class BaseGame extends GameMode
     private final GL_GraphicsController gl_controller;
 
     private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
+    private final ECSLayer<RenderComponent> recs;
 
-    private final List<ECSSystem<Component>> systems = new ArrayList<>();
+    private final List<ECSSystem> systems = new ArrayList<>();
 
-    public BaseGame(ECSLayer<Component> ecs1, GL_GraphicsController glController)
+    public BaseGame(ECSWorld world, GL_GraphicsController glController)
     {
-        ecs = ecs1;
+        super(world);
+        ecs = world.get(Component.class);
+        pecs = world.get(PhysicsComponent.class);
+        recs = world.get(RenderComponent.class);
         gl_controller = glController;
     }
 
     private void init_world()
     {
         var mouse_ray = Ray3d.generate_empty(player_entity);
-        var mouse_ray_entity = ecs.new_entity();
-        Archetypes.mouse_target(ecs, mouse_ray_entity, mouse_ray);
+        var mouse_ray_entity = world.new_entity();
+        PhysicsTypes.mouse_target(pecs, mouse_ray_entity, mouse_ray);
 
-        ecs.set_global(Component.MouseRay, mouse_ray_entity);
+        pecs.set_global(PhysicsComponent.MouseRay, mouse_ray_entity);
+        pecs.set_global(PhysicsComponent.SimulationRemainder, new MutableDouble(0.0f));
 
         ecs.set_global(Component.TimeOfDay, time_of_day);
-        ecs.set_global(Component.PointLightCount, new MutableInt(0));
-        ecs.set_global(Component.SpotLightCount, new MutableInt(0));
-        ecs.set_global(Component.SimulationRemainder, new MutableDouble(0.0f));
+        recs.set_global(RenderComponent.PointLightCount, new MutableInt(0));
+        recs.set_global(RenderComponent.SpotLightCount, new MutableInt(0));
 
         day_speed = calculate_day_speed(DAY_LENGTH);
 
-        var sun_light_entity = ecs.new_entity();
+        var sun_light_entity = world.new_entity();
         ecs.set_component(sun_light_entity, Component.SunLight, Marker.MARKED);
-        ecs.set_component(sun_light_entity, Component.Color, new Vector4f(0.93f, 0.90f, 0.71f, 1.0f));
-        ecs.set_component(sun_light_entity, Component.Direction, sun_direction);
-        ecs.set_component(sun_light_entity, Component.LightIntensity, new LightIntensity(0.005f, 0.5f));
+        recs.set_component(sun_light_entity, RenderComponent.Color, new Vector4f(0.93f, 0.90f, 0.71f, 1.0f));
+        recs.set_component(sun_light_entity, RenderComponent.Direction, sun_direction);
+        recs.set_component(sun_light_entity, RenderComponent.LightIntensity, new LightIntensity(0.005f, 0.5f));
 
-        var moon_light_entity = ecs.new_entity();
+        var moon_light_entity = world.new_entity();
         ecs.set_component(moon_light_entity, Component.MoonLight, Marker.MARKED);
-        ecs.set_component(moon_light_entity, Component.Color, new Vector4f(0.04f, 0.07f, 0.32f, 1.0f));
-        ecs.set_component(moon_light_entity, Component.Direction, moon_direction);
-        ecs.set_component(moon_light_entity, Component.LightIntensity, new LightIntensity(0.007f, 0.2f));
+        recs.set_component(moon_light_entity, RenderComponent.Color, new Vector4f(0.04f, 0.07f, 0.32f, 1.0f));
+        recs.set_component(moon_light_entity, RenderComponent.Direction, moon_direction);
+        recs.set_component(moon_light_entity, RenderComponent.LightIntensity, new LightIntensity(0.007f, 0.2f));
     }
 
     private void init_systems()
     {
-        systems.add(new EntityBehaviorSystem(ecs));
-        systems.add(new PhysicsSystem(ecs));
-        systems.add(new ParticleSystem(ecs));
-        systems.add(new TransformUpdateSystem(ecs));
-        systems.add(new CameraSystem(ecs));
-        systems.add(new LightSpaceSystem(ecs));
-        systems.add(new RenderingSystem(ecs, gl_controller));
-        systems.add(new UpkeepSystem(ecs));
+        systems.add(new EntityBehaviorSystem(world));
+        systems.add(new PhysicsSystem(world));
+        systems.add(new ParticleSystem(world));
+        systems.add(new TransformUpdateSystem(world));
+        systems.add(new CameraSystem(world));
+        systems.add(new LightSpaceSystem(world));
+        systems.add(new RenderingSystem(world, gl_controller));
+        systems.add(new UpkeepSystem(world));
 
         // for debugging todo: move below code to a proper debug start up process
-        if (DEBUG_MODE) systems.add(new DebugRenderingSystem(ecs));
+        if (DEBUG_MODE) systems.add(new DebugRenderingSystem(world));
     }
 
     private void cycle_day_night(double dt)
@@ -163,13 +173,13 @@ public class BaseGame extends GameMode
     public void activate()
     {
         latched = true;
-        systems.forEach(ecs::register_system);
+        systems.forEach(world::register_system);
     }
 
     @Override
     public void deactivate()
     {
-        systems.forEach(ecs::deregister_system);
+        systems.forEach(world::deregister_system);
     }
 
     @Override
@@ -195,8 +205,9 @@ public class BaseGame extends GameMode
 
     private void init_player()
     {
-        player_entity = ecs.new_entity();
+        player_entity = world.new_entity();
 
+        var model      = GLTFModel.TEST_CUBE;
         var scale      = 1.0f;
         var mass       = 5.0f;
         var drag       = 1.0f;
@@ -209,9 +220,12 @@ public class BaseGame extends GameMode
         var max_speed     = max_thrust / (mass * drag);
         var max_ang_speed = max_yaw / (inertia * drag);
 
+        var lights = RenderTypes.model_lights(world, recs, model, scale);
+        var hulls =  RenderTypes.model_hulls(recs, model, player_entity);
+
         Archetypes.player(ecs, player_entity);
-        Archetypes.model(ecs, player_entity, GLTFModel.TEST_CUBE, scale);
-        Archetypes.physics(ecs, player_entity,
+        RenderTypes.model(recs, player_entity, model, lights);
+        PhysicsTypes.physics(pecs, player_entity,
             mass,
             inertia,
             drag,
@@ -223,6 +237,7 @@ public class BaseGame extends GameMode
             max_ang_speed,
             new Vector3d(0.0),
             new Vector3d(0f, -(Math.PI / 2), 0f),
-            new Vector3d(scale));
+            new Vector3d(scale),
+            hulls);
     }
 }

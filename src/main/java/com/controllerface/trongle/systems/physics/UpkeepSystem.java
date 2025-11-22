@@ -6,7 +6,11 @@ import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.events.EventBus;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
+import com.juncture.alloy.rendering.RenderTypes;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.Quad3d;
 import com.juncture.alloy.utils.math.Ray3d;
@@ -22,7 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class UpkeepSystem extends ECSSystem<Component>
+public class UpkeepSystem extends ECSSystem
 {
     private final List<Vector3fc> BLAST_PARTICLE_VECTORS = new ArrayList<>();
 
@@ -50,9 +54,18 @@ public class UpkeepSystem extends ECSSystem<Component>
 
     private final EventBus event_bus;
 
-    public UpkeepSystem(ECSLayer<Component> ecs)
+    private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
+    private final ECSLayer<RenderComponent> recs;
+
+    public UpkeepSystem(ECSWorld world)
     {
-        super(ecs);
+        super(world);
+
+        this.ecs  = this.world.get(Component.class);
+        this.pecs = this.world.get(PhysicsComponent.class);
+        this.recs = this.world.get(RenderComponent.class);
+
         MathEX.generate_octal_spread(BLAST_PARTICLE_VECTORS);
         event_bus = Component.Events.global(ecs);
     }
@@ -67,20 +80,17 @@ public class UpkeepSystem extends ECSSystem<Component>
     {
         MathEX.perturb_direction_float(particle_velocity, DEBRIS_SPREAD_ACCURACY, DEBRIS_SPREAD_SIZE);
         particle_velocity.mul(speed);
-        Archetypes.particle(ecs, ecs.new_entity(), blast_location, particle_velocity, gravity, color, size, lifetime);
+        var entity = world.new_entity();
+        RenderTypes.billboard(recs, entity, blast_location, size);
+        Archetypes.particle(ecs, entity, particle_velocity, gravity, color, lifetime);
     }
 
     private void spawn_blast(Vector3f blast_location)
     {
-        var blast_entity = ecs.new_entity();
-        Archetypes.explosion(ecs,
-            blast_entity,
-            blast_location,
-            EXPLOSION_COLOR,
-            EXPLOSION_LIGHT_INTENSITY_MAX,
-            EXPLOSION_LIGHT_RANGE,
-            EXPLOSION_SIZE,
-            MAX_EXPLOSION_LIFETIME);
+        var blast_entity = world.new_entity();
+        RenderTypes.billboard(recs, blast_entity, blast_location, EXPLOSION_SIZE);
+        RenderTypes.blast_light(recs, blast_entity, blast_location, EXPLOSION_COLOR, EXPLOSION_LIGHT_INTENSITY_MAX, EXPLOSION_LIGHT_RANGE);
+        Archetypes.explosion(ecs, blast_entity, MAX_EXPLOSION_LIFETIME);
 
         for (var particle_vector : BLAST_PARTICLE_VECTORS)
         {
@@ -97,10 +107,10 @@ public class UpkeepSystem extends ECSSystem<Component>
 
     private void update_projectile(String projectile_entity)
     {
-        var hit_found = Component.RayCastFound.<MutableBoolean>for_entity(ecs, projectile_entity);
+        var hit_found = PhysicsComponent.RayCastFound.<MutableBoolean>for_entity(pecs, projectile_entity);
         if (!hit_found.value) return;
 
-        var hit_entity = Component.HitScanResult.<String>for_entity(ecs, projectile_entity);
+        var hit_entity = PhysicsComponent.HitScanResult.<String>for_entity(pecs, projectile_entity);
         var destructible = Component.Destructible.for_entity_or_null(ecs, hit_entity);
         if (destructible == null) return;
 
@@ -111,22 +121,22 @@ public class UpkeepSystem extends ECSSystem<Component>
         if (integrity.value <= 0)
         {
             to_remove.add(hit_entity);
-            var blast_location = Component.RenderPosition.<Vector3f>for_entity(ecs, hit_entity);
+            var blast_location = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, hit_entity);
             spawn_blast(blast_location);
         }
 
         // unset the found flag to avoid projectile being counted twice
         hit_found.value = false;
 
-        var hit_location = Component.RayCastHit.<Vector3d>for_entity(ecs, projectile_entity);
+        var hit_location = PhysicsComponent.RayCastHit.<Vector3d>for_entity(pecs, projectile_entity);
 
-        var quad = Component.HitScanTrail.<Quad3d>for_entity(ecs, projectile_entity);
+        var quad = RenderComponent.HitScanTrail.<Quad3d>for_entity(recs, projectile_entity);
 
         particle_buffer.set(hit_location);
-        var ray = Component.RayCast.<Ray3d>for_entity(ecs, projectile_entity);
+        var ray = PhysicsComponent.RayCast.<Ray3d>for_entity(pecs, projectile_entity);
 
         MathEX.update_tracer_quad(ray.direction(), hit_location, quad, 0.2f);
-        ecs.set_component(projectile_entity, Component.HitScanTrail, quad);
+        recs.set_component(projectile_entity, RenderComponent.HitScanTrail, quad);
 
         var debris_velocity = new Vector3f().set(ray.direction()).negate();
         spawn_debris_particle(debris_velocity,
@@ -143,7 +153,7 @@ public class UpkeepSystem extends ECSSystem<Component>
         var explosion = Component.Explosion.for_entity_or_null(ecs, entity);
         if (explosion == null) return;
 
-        var light_intensity = Component.LightIntensity.<LightIntensity>for_entity(ecs, entity);
+        var light_intensity = RenderComponent.LightIntensity.<LightIntensity>for_entity(recs, entity);
         var lifetime        = Component.Lifetime.<MutableDouble>for_entity(ecs, entity);
         var max_lifetime    = Component.MaxLifetime.<MutableDouble>for_entity(ecs, entity);
 
@@ -163,9 +173,9 @@ public class UpkeepSystem extends ECSSystem<Component>
 
         var life = Component.Lifetime.<MutableDouble>for_entity(ecs, entity);
         var max_life = Component.MaxLifetime.<MutableDouble>for_entity(ecs, entity);
-        var quad = Component.HitScanTrail.<Quad3d>for_entity(ecs, entity);
-        var quad_r = Component.HitScanTrailRender.<Quad3d>for_entity(ecs, entity);
-        var l_pos = Component.RenderPosition.<Vector3f>for_entity(ecs, entity);
+        var quad = RenderComponent.HitScanTrail.<Quad3d>for_entity(recs, entity);
+        var quad_r = RenderComponent.HitScanTrailRender.<Quad3d>for_entity(recs, entity);
+        var l_pos = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, entity);
 
         float blend = (float)(life.value / max_life.value);
         float tail_animation = 1.0f - blend;

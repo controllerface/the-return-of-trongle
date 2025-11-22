@@ -1,10 +1,9 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.Renderer;
 import com.juncture.alloy.gpu.gl.GL_GraphicsController;
-import com.controllerface.trongle.components.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,16 +11,16 @@ import java.util.List;
 import static com.juncture.alloy.gpu.gl.GL_GraphicsController.BufferType.COLOR;
 import static com.juncture.alloy.gpu.gl.GL_GraphicsController.BufferType.DEPTH;
 
-public class RenderingSystem extends ECSSystem<Component>
+public class RenderingSystem extends ECSSystem
 {
     private final float r, g, b, a;
     private final float z;
-    private final List<Renderer<Component>> renderers = new ArrayList<>();
+    private final List<Renderer> renderers = new ArrayList<>();
     private final GL_GraphicsController gl_controller;
 
-    public RenderingSystem(ECSLayer<Component> _ecs, GL_GraphicsController gl_controller)
+    public RenderingSystem(ECSWorld world, GL_GraphicsController gl_controller)
     {
-        super(_ecs);
+        super(world);
 
         this.gl_controller = gl_controller;
         this.gl_controller.init_sync();
@@ -32,7 +31,7 @@ public class RenderingSystem extends ECSSystem<Component>
         this.a = 1.0f;
         this.z = 1.0f;
 
-        renderers.add(new GeometryRenderer(ecs));
+        renderers.add(new GeometryRenderer(world));
         //renderers.add(new HUDRenderer(ecs));
     }
 

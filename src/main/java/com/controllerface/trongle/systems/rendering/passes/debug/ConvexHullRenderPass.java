@@ -7,8 +7,8 @@ import com.juncture.alloy.gpu.gl.buffers.GL_ElementBuffer;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
+import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.utils.math.MutableConvexHull;
-import com.controllerface.trongle.components.Component;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -35,11 +35,11 @@ public class ConvexHullRenderPass extends RenderPass
     private int vert_count = 0;
     private int face_count = 0;
 
-    private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
 
-    public ConvexHullRenderPass(ECSLayer<Component> ecs)
+    public ConvexHullRenderPass(ECSLayer<PhysicsComponent> pecs)
     {
-        this.ecs = ecs;
+        this.pecs = pecs;
         shader = GPU.GL.new_shader(resources,"convex_hull");
     }
 
@@ -144,9 +144,9 @@ public class ConvexHullRenderPass extends RenderPass
 
     private List<MutableConvexHull[]> get_mesh_aabbs()
     {
-        var hull_arrays = ecs.get_components(Component.Hulls);
+        var hull_arrays = pecs.get_components(PhysicsComponent.Hulls);
         return hull_arrays.values().stream()
-            .map(Component.Hulls::coerce)
+            .map(PhysicsComponent.Hulls::coerce)
             .map(x -> (MutableConvexHull[]) x)
             .toList();
     }

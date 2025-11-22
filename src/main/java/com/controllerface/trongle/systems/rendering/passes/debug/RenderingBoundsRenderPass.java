@@ -6,10 +6,11 @@ import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
-import com.juncture.alloy.physics.bvh.RenderNode;
-import com.juncture.alloy.physics.bvh.RenderTree;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.math.Bounds3f;
 import com.controllerface.trongle.components.Component;
+import com.juncture.alloy.utils.math.bvh.Octree3f;
+import com.juncture.alloy.utils.math.bvh.OctreeNode3f;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -38,10 +39,12 @@ public class RenderingBoundsRenderPass extends RenderPass
     private int box_count = 0;
 
     private final ECSLayer<Component> ecs;
+    private final ECSLayer<RenderComponent> recs;
 
-    public RenderingBoundsRenderPass(ECSLayer<Component> ecs)
+    public RenderingBoundsRenderPass(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
     {
         this.ecs = ecs;
+        this.recs = recs;
         shader = GPU.GL.new_shader(resources, "render_aabb");
     }
 
@@ -122,12 +125,12 @@ public class RenderingBoundsRenderPass extends RenderPass
         color_vbo_buffer.put(colors);
     }
 
-    public void collectNodes(List<Bounds3f> nodeList, RenderNode node)
+    public void collectNodes(List<Bounds3f> nodeList, OctreeNode3f node)
     {
         nodeList.add(node.bounds);
         if (node.children != null)
         {
-            for (RenderNode child : node.children)
+            for (var child : node.children)
             {
                 if (child != null)
                 {
@@ -139,7 +142,7 @@ public class RenderingBoundsRenderPass extends RenderPass
 
     private List<Bounds3f> get_octree_aabbs()
     {
-        var octree = Component.RenderBVH.<RenderTree>global_or_null(ecs);
+        var octree = RenderComponent.RenderBVH.<Octree3f>global_or_null(recs);
         if (octree == null) return Collections.emptyList();
 
         List<Bounds3f> bounds = new ArrayList<>();

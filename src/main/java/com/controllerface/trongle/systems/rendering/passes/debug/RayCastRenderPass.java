@@ -6,8 +6,8 @@ import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
+import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.utils.math.Ray3d;
-import com.controllerface.trongle.components.Component;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -33,11 +33,11 @@ public class RayCastRenderPass extends RenderPass
     private int current_vert_count = 0;
     private int max_vert_count = 0;
 
-    private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
 
-    public RayCastRenderPass(ECSLayer<Component> ecs)
+    public RayCastRenderPass(ECSLayer<PhysicsComponent> pecs)
     {
-        this.ecs = ecs;
+        this.pecs = pecs;
         shader = GPU.GL.new_shader(resources,"ray_cast");
     }
 
@@ -119,9 +119,9 @@ public class RayCastRenderPass extends RenderPass
 
     private List<Ray3d> get_rays()
     {
-        var hull_arrays = ecs.get_components(Component.RayCast);
+        var hull_arrays = pecs.get_components(PhysicsComponent.RayCast);
         return hull_arrays.values().stream()
-            .map(Component.RayCast::coerce)
+            .map(PhysicsComponent.RayCast::coerce)
             .map(x -> (Ray3d) x)
             .toList();
     }

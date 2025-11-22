@@ -6,12 +6,14 @@ import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
-import com.juncture.alloy.physics.bvh.PhysicsNode;
-import com.juncture.alloy.physics.bvh.PhysicsTree;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.math.Bounds3d;
 import com.juncture.alloy.utils.math.Bounds3f;
 import com.juncture.alloy.utils.math.MutableConvexHull;
 import com.controllerface.trongle.components.Component;
+import com.juncture.alloy.utils.math.bvh.Octree3d;
+import com.juncture.alloy.utils.math.bvh.OctreeNode3d;
 
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
@@ -40,10 +42,14 @@ public class BoundingBoxRenderPass extends RenderPass
     private int box_count = 0;
 
     private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
+    private final ECSLayer<RenderComponent> recs;
 
-    public BoundingBoxRenderPass(ECSLayer<Component> ecs)
+    public BoundingBoxRenderPass(ECSLayer<Component> ecs, ECSLayer<PhysicsComponent> pecs, ECSLayer<RenderComponent> recs)
     {
         this.ecs = ecs;
+        this.pecs = pecs;
+        this.recs = recs;
         shader = GPU.GL.new_shader(resources, "aabb");
     }
 
@@ -108,7 +114,7 @@ public class BoundingBoxRenderPass extends RenderPass
 
         for (var raw_aabb : model_bounds.values())
         {
-            Bounds3d bounds = Component.Bounds.coerce(raw_aabb);
+            Bounds3d bounds = PhysicsComponent.Bounds.coerce(raw_aabb);
 
             int x = buffer_index++;
             int y = buffer_index++;
@@ -129,7 +135,7 @@ public class BoundingBoxRenderPass extends RenderPass
 
         for (var raw_aabb : render_bounds.values())
         {
-            Bounds3f bounds = Component.RenderBounds.coerce(raw_aabb);
+            Bounds3f bounds = RenderComponent.RenderBounds.coerce(raw_aabb);
 
             int x = buffer_index++;
             int y = buffer_index++;
@@ -194,12 +200,12 @@ public class BoundingBoxRenderPass extends RenderPass
         color_vbo_buffer.put(colors);
     }
 
-    public void collectNodes(List<Bounds3d> nodeList, PhysicsNode node)
+    public void collectNodes(List<Bounds3d> nodeList, OctreeNode3d node)
     {
         nodeList.add(node.bounds);
         if (node.children != null)
         {
-            for (PhysicsNode child : node.children)
+            for (var child : node.children)
             {
                 if (child != null)
                 {
@@ -211,7 +217,7 @@ public class BoundingBoxRenderPass extends RenderPass
 
     private List<Bounds3d> get_octree_aabbs()
     {
-        var octree = Component.CollisionBVH.<PhysicsTree>global_or_null(ecs);
+        var octree = PhysicsComponent.CollisionBVH.<Octree3d>global_or_null(pecs);
         if (octree == null) return Collections.emptyList();
 
         List<Bounds3d> bounds = new ArrayList<>();
@@ -222,9 +228,9 @@ public class BoundingBoxRenderPass extends RenderPass
 
     private List<Bounds3d> get_mesh_aabbs()
     {
-        var hull_arrays = ecs.get_components(Component.Hulls);
+        var hull_arrays = pecs.get_components(PhysicsComponent.Hulls);
         return hull_arrays.values().stream()
-            .map(Component.Hulls::coerce)
+            .map(PhysicsComponent.Hulls::coerce)
             .map(x -> ((MutableConvexHull[]) x))
             .flatMap(Arrays::stream)
             .map(h->h.bounds)
@@ -234,8 +240,8 @@ public class BoundingBoxRenderPass extends RenderPass
     @Override
     public void render()
     {
-        var model_aabbs = ecs.get_components(Component.Bounds);
-        var render_aabbs = ecs.get_components(Component.RenderBounds);
+        var model_aabbs = pecs.get_components(PhysicsComponent.Bounds);
+        var render_aabbs = recs.get_components(RenderComponent.RenderBounds);
         var mesh_aabbs = get_mesh_aabbs();
         var octree_aabbs = get_octree_aabbs();
         resize_buffers(model_aabbs, render_aabbs, mesh_aabbs, octree_aabbs);

@@ -19,6 +19,7 @@ import com.juncture.alloy.gpu.gl.textures.GL_TextureArray;
 import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.systems.rendering.hud.SnapPosition;
 import com.controllerface.trongle.systems.rendering.hud.TextContainer;
+import com.juncture.alloy.rendering.RenderComponent;
 
 import java.nio.FloatBuffer;
 import java.util.*;
@@ -65,9 +66,9 @@ public class DebugHUDRenderer extends RenderPass
 
     private final Window window;
 
-    public DebugHUDRenderer(ECSLayer<Component> ecs)
+    public DebugHUDRenderer(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
     {
-        this.window = Component.MainWindow.global(ecs);
+        this.window = RenderComponent.MainWindow.global(recs);
 
         var event_bus = Component.Events.<EventBus>global(ecs);
         event_bus.register(event_queue,

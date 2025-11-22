@@ -4,12 +4,22 @@ import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.systems.behavior.behaviors.PlayerBehavior;
+import com.juncture.alloy.ecs.ECSWorld;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
 
-public class EntityBehaviorSystem extends ECSSystem<Component>
+public class EntityBehaviorSystem extends ECSSystem
 {
-    public EntityBehaviorSystem(ECSLayer<Component> ecs)
+    private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
+    private final ECSLayer<RenderComponent> recs;
+
+    public EntityBehaviorSystem(ECSWorld world)
     {
-        super(ecs);
+        super(world);
+        ecs = world.get(Component.class);
+        pecs = world.get(PhysicsComponent.class);
+        recs = world.get(RenderComponent.class);
     }
 
     @Override
@@ -22,7 +32,7 @@ public class EntityBehaviorSystem extends ECSSystem<Component>
             var behavior = Component.Behavior.<EntityBehavior>coerce(behavior_entry.getValue());
             switch (behavior)
             {
-                case PLAYER -> PlayerBehavior.behave(dt, ecs, entity_id);
+                case PLAYER -> PlayerBehavior.behave(dt, ecs, pecs, recs, entity_id);
             }
         }
     }

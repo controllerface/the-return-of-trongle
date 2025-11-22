@@ -1,34 +1,20 @@
 package com.controllerface.trongle.components;
 
-import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.*;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSComponent;
 import com.juncture.alloy.events.EventBus;
-import com.juncture.alloy.gpu.RenderSet;
-import com.juncture.alloy.gpu.Window;
-import com.juncture.alloy.models.ModelRegistry;
-import com.juncture.alloy.physics.bvh.PhysicsTree;
-import com.juncture.alloy.physics.bvh.RenderTree;
 import com.juncture.alloy.utils.math.*;
-import com.controllerface.trongle.main.GLTFModel;
 import com.controllerface.trongle.systems.behavior.AxisDirection;
 import com.controllerface.trongle.systems.behavior.EntityBehavior;
 import com.controllerface.trongle.systems.behavior.behaviors.MovementDirection;
 import com.controllerface.trongle.systems.input.InputState;
-import org.joml.Matrix4f;
-import org.joml.Vector3d;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 
 public enum Component implements ECSComponent<Component>
 {
     // Behaviors
     Behavior            (EntityBehavior.class),
-    MaxPitch            (MutableFloat.class),
-    MaxRoll             (MutableFloat.class),
-    MaxSpeed            (MutableFloat.class),
-    MaxAngSpeed         (MutableFloat.class),
     CurrentDirection    (MovementDirection.class),
     CurrentThrustAxis   (AxisDirection.class),
     CurrentYawAxis      (AxisDirection.class),
@@ -38,13 +24,11 @@ public enum Component implements ECSComponent<Component>
     // Player
     Player              (Marker.class),
     Input               (InputState.class),
-    MouseCollider       (Marker.class),
 
     // Bookkeeping
     Destructible        (Marker.class),
     HitScanWeapon       (Marker.class),
     Projectile          (Marker.class),
-    BillboardSize       (MutableFloat.class),
     Integrity           (MutableFloat.class),
     Lifetime            (MutableDouble.class),
     MaxLifetime         (MutableDouble.class),
@@ -59,85 +43,14 @@ public enum Component implements ECSComponent<Component>
     ParticleColor       (Vector3f.class),
     TrailTipColor       (Vector3f.class),
     TrailTailColor      (Vector3f.class),
-    HitScanTrail        (Quad3d.class),
-    HitScanTrailRender  (Quad3d.class),
-
-    // Rendering
-    Model               (GLTFModel.class),
-    RenderBounds        (Bounds3f.class),
-    RenderPosition      (Vector3f.class),
-    RenderScale         (Vector3f.class),
-    RenderRotation      (Vector3f.class),
-    RenderOrigin        (Vector3f.class),
-    RenderTerminus      (Vector3f.class),
-    Transform           (Matrix4f.class),
-    TerrainIndex        (Long.class),
-    RenderBVH           (RenderTree.class),
-    RenderVisible       (RenderSet.class),
 
     // Lights
     SunLight            (Marker.class),
     MoonLight           (Marker.class),
     TimeOfDay           (MutableFloat.class),
-    Light               (LightEmitterType.class),
-    LightIntensity      (LightIntensity.class),
-    LightRange          (MutableFloat.class),
-    InnerCone           (MutableFloat.class),
-    OuterCone           (MutableFloat.class),
-    Color               (Vector4f.class),
-    Direction           (Vector3f.class),
-    ModelLights         (String[].class, SubType.GROUP),
-    PointLightCount     (MutableInt.class),
-    SpotLightCount      (MutableInt.class),
-    LightSpaceMatrix    (Matrix4f.class),
-
-    // Physics
-    PhysicsTracked      (Marker.class),
-    CollisionBVH        (PhysicsTree.class),
-    SimulationRemainder (MutableDouble.class),
-    Bounds              (Bounds3d.class),
-    Hulls               (MutableConvexHull[].class),
-    Acceleration        (Vector3d.class),
-    AngularAcceleration (MutableFloat.class),
-    Velocity            (Vector3d.class),
-    AngularVelocity     (MutableFloat.class),
-    Position            (Vector3d.class),
-    Rotation            (Vector3d.class),
-    Scale               (Vector3d.class),
-    PreviousPosition    (Vector3d.class),
-    PreviousRotation    (Vector3d.class),
-    Heading             (Vector3d.class),
-    Mass                (MutableFloat.class),
-    Inertia             (MutableFloat.class),
-    MaxThrust           (MutableFloat.class),
-    MaxYaw              (MutableFloat.class),
-    Thrust              (MutableFloat.class),
-    Yaw                 (MutableFloat.class),
-    Drag                (MutableFloat.class),
-    RayCast             (Ray3d.class),
-    RayCastHit          (Vector3d.class),
-    RayCastFound        (MutableBoolean.class),
-    RayCastComplete     (MutableBoolean.class),
-    RayCastInteract     (Boolean.class),
-    HitScanResult       (String.class),
-
-    // Camera
-    MainCamera          (WorldCamera.class),
-    CameraPitch         (MutableFloat.class),
-    CameraYaw           (MutableFloat.class),
-    CameraZoom          (MutableFloat.class),
-
-    // Window
-    MainWindow          (Window.class),
-
-    // Models
-    Models              (ModelRegistry.class),
 
     // Events
     Events              (EventBus.class),
-
-    // Mouse Ray Object
-    MouseRay            (String.class),
 
     ;
 

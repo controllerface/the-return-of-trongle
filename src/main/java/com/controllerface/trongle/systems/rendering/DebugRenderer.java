@@ -8,13 +8,15 @@ import com.controllerface.trongle.systems.rendering.passes.debug.BoundingBoxRend
 import com.controllerface.trongle.systems.rendering.passes.debug.ConvexHullRenderPass;
 import com.controllerface.trongle.systems.rendering.passes.debug.RayCastRenderPass;
 import com.controllerface.trongle.systems.rendering.passes.debug.RenderingBoundsRenderPass;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
 
-public class DebugRenderer extends Renderer<Component>
+public class DebugRenderer extends Renderer
 {
-    private final boolean DEBUG_HULLS = false;
-    private final boolean DEBUG_RAYS = false;
-    private final boolean DEBUG_PHYS_BOUNDS = false;
-    private final boolean DEBUG_REND_BOUNDS = false;
+    private final boolean DEBUG_HULLS = true;
+    private final boolean DEBUG_RAYS = true;
+    private final boolean DEBUG_PHYS_BOUNDS = true;
+    private final boolean DEBUG_REND_BOUNDS = true;
 
     private final RenderPass hull_pass;
     private final RenderPass ray_pass;
@@ -22,14 +24,13 @@ public class DebugRenderer extends Renderer<Component>
     private final RenderPass render_aabb_pass;
     private final RenderPass hud_pass;
 
-    public DebugRenderer(ECSLayer<Component> ecs)
+    public DebugRenderer(ECSLayer<Component> ecs, ECSLayer<PhysicsComponent> pecs, ECSLayer<RenderComponent> recs)
     {
-        super(ecs);
-        hull_pass = resources.track(new ConvexHullRenderPass(ecs));
-        ray_pass = resources.track(new RayCastRenderPass(ecs));
-        aabb_pass = resources.track(new BoundingBoxRenderPass(ecs));
-        render_aabb_pass = resources.track(new RenderingBoundsRenderPass(ecs));
-        hud_pass = resources.track(new DebugHUDRenderer(ecs));
+        hull_pass = resources.track(new ConvexHullRenderPass(pecs));
+        ray_pass = resources.track(new RayCastRenderPass(pecs));
+        aabb_pass = resources.track(new BoundingBoxRenderPass(ecs, pecs, recs));
+        render_aabb_pass = resources.track(new RenderingBoundsRenderPass(ecs, recs));
+        hud_pass = resources.track(new DebugHUDRenderer(ecs, recs));
     }
 
     @Override

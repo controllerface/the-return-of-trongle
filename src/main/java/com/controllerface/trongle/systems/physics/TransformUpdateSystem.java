@@ -5,20 +5,22 @@ import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.RenderSet;
 import com.juncture.alloy.models.ModelRegistry;
-import com.juncture.alloy.physics.bvh.RenderTree;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.math.AABB;
 import com.juncture.alloy.utils.math.Bounds3f;
 import com.juncture.alloy.utils.math.RenderExtents;
-import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.main.GLTFModel;
+import com.juncture.alloy.utils.math.bvh.Octree3f;
 import org.joml.*;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class TransformUpdateSystem extends ECSSystem<Component>
+public class TransformUpdateSystem extends ECSSystem
 {
     private final float[] ref_min = new float[3];
     private final float[] ref_max = new float[3];
@@ -31,7 +33,7 @@ public class TransformUpdateSystem extends ECSSystem<Component>
 
     private final MutableDouble simulation_remainder;
 
-    private final ModelRegistry<GLTFModel> models;
+    private final ModelRegistry models;
 
     private final RenderExtents render_extents      = new RenderExtents();
     private final Bounds3f         render_bounds       = new Bounds3f();
@@ -40,13 +42,18 @@ public class TransformUpdateSystem extends ECSSystem<Component>
     private final WorldCamera camera;
     private final RenderSet render_set = new RenderSet();
 
-    public TransformUpdateSystem(ECSLayer<Component> _ecs)
+    private final ECSLayer<PhysicsComponent> pecs;
+    private final ECSLayer<RenderComponent> recs;
+
+    public TransformUpdateSystem(ECSWorld world)
     {
-        super(_ecs);
-        this.camera = Component.MainCamera.global(ecs);
-        this.models = Component.Models.global(ecs);
-        simulation_remainder = Component.SimulationRemainder.global(ecs);
-        ecs.set_global(Component.RenderVisible, render_set);
+        super(world);
+        this.pecs = world.get(PhysicsComponent.class);
+        this.recs = world.get(RenderComponent.class);
+        this.camera = RenderComponent.MainCamera.global(recs);
+        this.models = RenderComponent.Models.global(recs);
+        simulation_remainder = PhysicsComponent.SimulationRemainder.global(pecs);
+        recs.set_global(RenderComponent.RenderVisible, render_set);
     }
 
     void update_bounds(Matrix4f transform, Vector3f position, AABB ref_bounds, Bounds3f bounds)
@@ -97,11 +104,11 @@ public class TransformUpdateSystem extends ECSSystem<Component>
                                        Vector3f render_scale,
                                        double alpha, double minus_alpha)
     {
-        var position     = Component.Position.<Vector3d>for_entity(ecs, entity);
-        var rotation     = Component.Rotation.<Vector3d>for_entity(ecs, entity);
-        var scale        = Component.Scale.<Vector3d>for_entity(ecs, entity);
-        var prv_position = Component.PreviousPosition.<Vector3d>for_entity(ecs, entity);
-        var prv_rotation = Component.PreviousRotation.<Vector3d>for_entity(ecs, entity);
+        var position     = PhysicsComponent.Position.<Vector3d>for_entity(pecs, entity);
+        var rotation     = PhysicsComponent.Rotation.<Vector3d>for_entity(pecs, entity);
+        var scale        = PhysicsComponent.Scale.<Vector3d>for_entity(pecs, entity);
+        var prv_position = PhysicsComponent.PreviousPosition.<Vector3d>for_entity(pecs, entity);
+        var prv_rotation = PhysicsComponent.PreviousRotation.<Vector3d>for_entity(pecs, entity);
 
         render_position.set(
             position.x * alpha + prv_position.x * minus_alpha,
@@ -126,15 +133,15 @@ public class TransformUpdateSystem extends ECSSystem<Component>
         {
             var base_light = base_lights[light_index];
             var light_entity = model_lights[light_index];
-            var light_position = Component.RenderPosition.<Vector3f>for_entity(ecs, light_entity);
-            var emitter = Component.Light.<LightEmitterType>for_entity(ecs, light_entity);
+            var light_position = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, light_entity);
+            var emitter = RenderComponent.Light.<LightEmitterType>for_entity(recs, light_entity);
             l_buf.set(base_light.data().position(), 1.0f);
             transform.transform(l_buf);
             light_position.set(l_buf);
             if (emitter == LightEmitterType.SPOT)
             {
                 transform.get3x3(m_buf);
-                var light_direction = Component.Direction.<Vector3f>for_entity(ecs, light_entity);
+                var light_direction = RenderComponent.Direction.<Vector3f>for_entity(recs, light_entity);
                 m_buf.transform(base_light.data().direction(), light_direction);
                 light_direction.normalize();
             }
@@ -148,7 +155,7 @@ public class TransformUpdateSystem extends ECSSystem<Component>
         {
             var base_camera = base_cameras[turret_index];
             var turret_entity = model_turrets[turret_index];
-            var turret_position = Component.RenderPosition.<Vector3f>for_entity(ecs, turret_entity);
+            var turret_position = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, turret_entity);
             l_buf.set(base_camera.position(), 1.0f);
             transform.transform(l_buf);
             turret_position.set(l_buf);
@@ -157,30 +164,30 @@ public class TransformUpdateSystem extends ECSSystem<Component>
 
     private void update_entity_transform(String entity, double simulation_remainder, double negative_remainder)
     {
-        var position = Component.RenderPosition.<Vector3f>for_entity(ecs, entity);
-        var rotation = Component.RenderRotation.<Vector3f>for_entity(ecs, entity);
-        var scale    = Component.RenderScale.<Vector3f>for_entity(ecs, entity);
+        var position = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, entity);
+        var rotation = RenderComponent.RenderRotation.<Vector3f>for_entity(recs, entity);
+        var scale    = RenderComponent.RenderScale.<Vector3f>for_entity(recs, entity);
 
-        var has_physics = Component.PhysicsTracked.for_entity_or_null(ecs, entity);
+        var has_physics = PhysicsComponent.PhysicsTracked.for_entity_or_null(pecs, entity);
         if (has_physics != null)
         {
             interpolate_transform(entity, position, rotation, scale, simulation_remainder, negative_remainder);
         }
 
-        var transform = Component.Transform.<Matrix4f>for_entity(ecs, entity);
+        var transform = RenderComponent.Transform.<Matrix4f>for_entity(recs, entity);
 
         transform.identity();
         transform.translate(position);
         transform.rotateYXZ(rotation); // important: must rotate in YXZ order
         transform.scale(scale);
 
-        var model  = Component.Model.<GLTFModel>for_entity(ecs, entity);
-        var bounds = Component.RenderBounds.<Bounds3f>for_entity(ecs, entity);
+        var model  = RenderComponent.Model.<GLTFModel>for_entity(recs, entity);
+        var bounds = RenderComponent.RenderBounds.<Bounds3f>for_entity(recs, entity);
 
         var ref_bounds = models.get(model).bounds();
         update_bounds(transform, position, ref_bounds, bounds);
 
-        var model_lights = Component.ModelLights.<String[]>for_entity_or_null(ecs, entity);
+        var model_lights = RenderComponent.ModelLights.<String[]>for_entity_or_null(recs, entity);
         if (model_lights != null)
         {
             update_light_transforms(transform, model_lights, model);
@@ -193,15 +200,15 @@ public class TransformUpdateSystem extends ECSSystem<Component>
         render_bounds_queue.clear();
         render_extents.reset();
         double negative_remainder = 1.0 - simulation_remainder.value;
-        var model_entities = ecs.get_components(Component.Model).keySet();
+        var model_entities = recs.get_components(RenderComponent.Model).keySet();
         for (var entity : model_entities)
         {
             update_entity_transform(entity, simulation_remainder.value, negative_remainder);
         }
         render_bounds.update(render_extents);
-        var render_tree = new RenderTree(render_bounds, render_bounds_queue, 16, 8);
+        var render_tree = new Octree3f(render_bounds, render_bounds_queue, 16, 8);
         var visible_bounds = render_tree.query(camera.frustum());
         render_set.update(visible_bounds);
-        ecs.set_global(Component.RenderBVH, render_tree);
+        recs.set_global(RenderComponent.RenderBVH, render_tree);
     }
 }

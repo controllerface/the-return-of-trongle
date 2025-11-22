@@ -4,6 +4,7 @@ import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.ecs.ECSLayer;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
 import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
@@ -37,15 +38,15 @@ public class PointLight
 
     private static final VarHandle _range = var_handle(LAYOUT, RANGE);
 
-    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs, String entity)
+    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<RenderComponent> recs, String entity)
     {
-        var emitter = Component.Light.<LightEmitterType>for_entity(ecs, entity);
+        var emitter = RenderComponent.Light.<LightEmitterType>for_entity(recs, entity);
         assert emitter == LightEmitterType.POINT;
 
-        var color     = Component.Color.<Vector4f>for_entity(ecs, entity);
-        var position  = Component.RenderPosition.<Vector3f>for_entity(ecs, entity);
-        var intensity = Component.LightIntensity.<LightIntensity>for_entity(ecs, entity);
-        var range     = Component.LightRange.<MutableFloat>for_entity(ecs, entity);
+        var color     = RenderComponent.Color.<Vector4f>for_entity(recs, entity);
+        var position  = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, entity);
+        var intensity = RenderComponent.LightIntensity.<LightIntensity>for_entity(recs, entity);
+        var range     = RenderComponent.LightRange.<MutableFloat>for_entity(recs, entity);
 
         long offset = index * LAYOUT.byteSize();
 

@@ -3,17 +3,18 @@ package com.controllerface.trongle.systems.camera;
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.GPUResourceGroup;
-import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.struct.UniformViewData;
 import com.controllerface.trongle.systems.rendering.GeometryRenderer;
+import com.juncture.alloy.rendering.RenderComponent;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
 
-public class UniformViewSystem extends ECSSystem<Component>
+public class UniformViewSystem extends ECSSystem
 {
     private final WorldCamera camera;
 
@@ -22,11 +23,13 @@ public class UniformViewSystem extends ECSSystem<Component>
     private final MemorySegment view_segment;
 
     private final GPUResourceGroup resources = new GPUResourceGroup();
+    private final ECSLayer<RenderComponent> recs;
 
-    public UniformViewSystem(ECSLayer<Component> ecs)
+    public UniformViewSystem(ECSWorld world)
     {
-        super(ecs);
-        camera = Component.MainCamera.global(ecs);
+        super(world);
+        recs = world.get(RenderComponent.class);
+        camera = RenderComponent.MainCamera.global(recs);
         var ubo = GPU.GL.uniform_buffer(resources, UniformViewData.LAYOUT.byteSize());
         ubo.bind(GeometryRenderer.UBO_BindPoint.VIEW_DATA.ordinal());
         ubo_view_data = ubo.map_as_byte_buffer();

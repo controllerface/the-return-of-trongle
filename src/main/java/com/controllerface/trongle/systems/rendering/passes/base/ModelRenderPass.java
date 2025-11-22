@@ -10,13 +10,14 @@ import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
 import com.juncture.alloy.gpu.gl.textures.GL_CubeMap;
 import com.juncture.alloy.gpu.gl.textures.GL_ShadowTexture;
 import com.juncture.alloy.gpu.gl.textures.GL_TextureArray;
+import com.juncture.alloy.models.ModelAsset;
 import com.juncture.alloy.models.ModelRegistry;
 import com.juncture.alloy.models.data.MaterialTextures;
 import com.juncture.alloy.models.data.ModelBuffers;
 import com.juncture.alloy.models.data.ModelMetaData;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.memory.glsl.Mat4;
 import com.juncture.alloy.utils.memory.opengl.DrawElementsIndirectCommand;
-import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.main.GLTFModel;
 import org.joml.Matrix4f;
 
@@ -48,7 +49,8 @@ public class ModelRenderPass extends RenderPass
     private static final int MATERIAL_ATTRIBUTE  = 6;
     private static final int MODEL_ID_ATTRIBUTE  = 7;
 
-    private final ECSLayer<Component> ecs;
+    private final ECSLayer<RenderComponent> recs;
+
     private final Window window;
     private final Matrix4f light_space_matrix;
 
@@ -95,17 +97,20 @@ public class ModelRenderPass extends RenderPass
     private MemorySegment model_matrix_segment;
     private MemorySegment mesh_matrix_segment;
 
-    public ModelRenderPass(ECSLayer<Component> ecs, GL_CubeMap skybox_texture, GL_CubeMap skybox_texture_dark, GL_ShadowTexture shadow_texture)
+    public ModelRenderPass(ECSLayer<RenderComponent> recs,
+                           GL_CubeMap skybox_texture,
+                           GL_CubeMap skybox_texture_dark,
+                           GL_ShadowTexture shadow_texture)
     {
-        this.ecs = ecs;
+        this.recs = recs;
         this.skybox_texture = skybox_texture;
         this.skybox_night_texture = skybox_texture_dark;
         this.shadow_texture = shadow_texture;
 
-        this.window = Component.MainWindow.global(ecs);
-        this.light_space_matrix = Component.LightSpaceMatrix.global(ecs);
+        this.window = RenderComponent.MainWindow.global(recs);
+        this.light_space_matrix = RenderComponent.LightSpaceMatrix.global(recs);
 
-        var model_registry = Component.Models.<ModelRegistry<GLTFModel>>global(this.ecs);
+        var model_registry = RenderComponent.Models.<ModelRegistry>global(this.recs);
         var model_metrics = model_registry.model_metrics();
         var command_buffer_size = DrawElementsIndirectCommand.calculate_buffer_size(model_metrics.mesh_count());
 
@@ -254,10 +259,10 @@ public class ModelRenderPass extends RenderPass
 
         model_instance_buffer.clear();
 
-        var visible_bounds = Component.RenderVisible.<RenderSet>global(ecs);
+        var visible_bounds = RenderComponent.RenderVisible.<RenderSet>global(recs);
         for (var bounds : visible_bounds)
         {
-            var model = Component.Model.<GLTFModel>for_entity(ecs, bounds.entity);
+            var model = RenderComponent.Model.<GLTFModel>for_entity(recs, bounds.entity);
             var mesh_count = model_data.face_offsets().get(model).length;
             model_instance_buffer
                 .computeIfAbsent(model, _ -> new ArrayList<>())
@@ -324,7 +329,7 @@ public class ModelRenderPass extends RenderPass
             for (var model_instance_id = 0; model_instance_id < entities.size(); model_instance_id++)
             {
                 var entity = entities.get(model_instance_id);
-                var transform = Component.Transform.<Matrix4f>for_entity(ecs, entity);
+                var transform = RenderComponent.Transform.<Matrix4f>for_entity(recs, entity);
                 Mat4.map_at_index(model_matrix_segment, model_matrix_index++, transform);
 
                 for (var mesh_index = 0; mesh_index < mesh_offsets.length; mesh_index++)

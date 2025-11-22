@@ -15,6 +15,7 @@ import com.juncture.alloy.gpu.gl.textures.GL_TextureArray;
 import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.systems.rendering.hud.SnapPosition;
 import com.controllerface.trongle.systems.rendering.hud.TextContainer;
+import com.juncture.alloy.rendering.RenderComponent;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import static com.juncture.alloy.gpu.Constants.*;
 import static org.lwjgl.opengl.GL11C.*;
 import static org.lwjgl.opengl.GL43C.glMultiDrawArraysIndirect;
 
-public class MenuRenderer extends Renderer<Component>
+public class MenuRenderer extends Renderer
 {
     // todo: Currently, this renderer doesn't properly batch rendering calls, essentially it creates one batch
     //  worth of space in the command buffer, and draws that, assuming the amount of text to draw will never be
@@ -64,10 +65,9 @@ public class MenuRenderer extends Renderer<Component>
 
     private final Window window;
 
-    public MenuRenderer(ECSLayer<Component> _ecs)
+    public MenuRenderer(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
     {
-        super(_ecs);
-        this.window = Component.MainWindow.global(ecs);
+        this.window = RenderComponent.MainWindow.global(recs);
         var event_bus = Component.Events.<EventBus>global(ecs);
         event_bus.register(event_queue, CoreEvent.WINDOW_RESIZE);
 

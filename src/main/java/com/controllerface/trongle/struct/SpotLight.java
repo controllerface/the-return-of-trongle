@@ -4,6 +4,7 @@ import com.juncture.alloy.data.LightEmitterType;
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.ecs.ECSLayer;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
 import com.controllerface.trongle.components.Component;
 import org.joml.Vector3f;
@@ -40,16 +41,16 @@ public class SpotLight
     private static final VarHandle inner_cone = var_handle(LAYOUT, IN_CONE);
     private static final VarHandle outer_cone = var_handle(LAYOUT, OUT_CONE);
 
-    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<Component> ecs, String entity)
+    public static void ecs_map_at_index(MemorySegment light_segment, int index, ECSLayer<RenderComponent> ecs, String entity)
     {
-        var emitter   = Component.Light.<LightEmitterType>for_entity(ecs, entity);
-        var color     = Component.Color.<Vector4f>for_entity(ecs, entity);
-        var position  = Component.RenderPosition.<Vector3f>for_entity(ecs, entity);
-        var direction = Component.Direction.<Vector3f>for_entity(ecs, entity);
-        var intensity = Component.LightIntensity.<LightIntensity>for_entity(ecs, entity);
-        var range     = Component.LightRange.<MutableFloat>for_entity(ecs, entity);
-        var inner     = Component.InnerCone.<MutableFloat>for_entity(ecs, entity);
-        var outer     = Component.OuterCone.<MutableFloat>for_entity(ecs, entity);
+        var emitter   = RenderComponent.Light.<LightEmitterType>for_entity(ecs, entity);
+        var color     = RenderComponent.Color.<Vector4f>for_entity(ecs, entity);
+        var position  = RenderComponent.RenderPosition.<Vector3f>for_entity(ecs, entity);
+        var direction = RenderComponent.Direction.<Vector3f>for_entity(ecs, entity);
+        var intensity = RenderComponent.LightIntensity.<LightIntensity>for_entity(ecs, entity);
+        var range     = RenderComponent.LightRange.<MutableFloat>for_entity(ecs, entity);
+        var inner     = RenderComponent.InnerCone.<MutableFloat>for_entity(ecs, entity);
+        var outer     = RenderComponent.OuterCone.<MutableFloat>for_entity(ecs, entity);
 
         assert emitter == LightEmitterType.SPOT;
 

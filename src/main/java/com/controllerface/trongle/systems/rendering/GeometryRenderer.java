@@ -1,19 +1,21 @@
 package com.controllerface.trongle.systems.rendering;
 
+import com.controllerface.trongle.components.Component;
 import com.juncture.alloy.ecs.ECSLayer;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.RenderPass;
 import com.juncture.alloy.gpu.Renderer;
-import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.struct.GlobalLight;
 import com.controllerface.trongle.systems.rendering.passes.base.*;
 import com.controllerface.trongle.systems.rendering.passes.debug.ShadowDebugPass;
+import com.juncture.alloy.rendering.RenderComponent;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
 
-public class GeometryRenderer extends Renderer<Component>
+public class GeometryRenderer extends Renderer
 {
     private static final boolean DEBUG = false;
 
@@ -58,9 +60,13 @@ public class GeometryRenderer extends Renderer<Component>
         }
     }
 
-    public GeometryRenderer(ECSLayer<Component> _ecs)
+    protected final ECSLayer<Component> ecs;
+    protected final ECSLayer<RenderComponent> recs;
+
+    public GeometryRenderer(ECSWorld world)
     {
-        super(_ecs);
+        ecs = world.get(Component.class);
+        recs = world.get(RenderComponent.class);
 
         var skybox_texture = GPU.GL.new_cube_map(resources,
             "/img/skybox/sh_ft.png",
@@ -81,8 +87,8 @@ public class GeometryRenderer extends Renderer<Component>
 
         var shadow_map_texture = GPU.GL.new_shadow_texture(resources);
 
-        add_pass(new LightRenderPass(ecs));
-        add_pass(new ModelRenderPass(ecs, skybox_texture, skybox_texture_dark, shadow_map_texture));
+        add_pass(new LightRenderPass(ecs, recs));
+        add_pass(new ModelRenderPass(recs, skybox_texture, skybox_texture_dark, shadow_map_texture));
         //add_pass(new HitScanWeaponRenderPass(ecs));
         //add_pass(new TerrainRenderPass(ecs));
         //add_pass(new ParticleRenderPass(ecs));
@@ -96,7 +102,7 @@ public class GeometryRenderer extends Renderer<Component>
 
         glb_segment = memory_arena.allocate(GlobalLight.LAYOUT);
 
-        shadow_debug_pass = DEBUG ? new ShadowDebugPass(ecs, shadow_map_texture) : null;
+        shadow_debug_pass = DEBUG ? new ShadowDebugPass(ecs, recs, shadow_map_texture) : null;
     }
 
     @Override
@@ -110,7 +116,7 @@ public class GeometryRenderer extends Renderer<Component>
     public void render()
     {
         ubo_global_light.clear();
-        GlobalLight.ecs_map_at_index(glb_segment, 0, ecs);
+        GlobalLight.ecs_map_at_index(glb_segment, 0, ecs, recs);
         ubo_global_light.put(glb_segment.asByteBuffer());
 
         super.render();

@@ -10,6 +10,7 @@ import com.juncture.alloy.gpu.gl.buffers.GL_ShaderStorageBuffer;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.memory.glsl.Vec3;
 import com.juncture.alloy.utils.memory.glsl.Vec4;
 import com.controllerface.trongle.components.Component;
@@ -54,6 +55,7 @@ public class LightRenderPass extends RenderPass
     private int max_spot_lights;
 
     private final ECSLayer<Component> ecs;
+    private final ECSLayer<RenderComponent> recs;
 
     private GL_Shader dbg_shader;
     private GL_VertexArray dbg_vao;
@@ -69,12 +71,13 @@ public class LightRenderPass extends RenderPass
     private MemorySegment point_segment;
     private MemorySegment spot_segment;
 
-    public LightRenderPass(ECSLayer<Component> ecs)
+    public LightRenderPass(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
     {
         this.ecs = ecs;
+        this.recs = recs;
 
-        this.point_light_count = Component.PointLightCount.global(this.ecs);
-        this.spot_light_count = Component.SpotLightCount.global(this.ecs);
+        this.point_light_count = RenderComponent.PointLightCount.global(this.recs);
+        this.spot_light_count = RenderComponent.SpotLightCount.global(this.recs);
 
         if (DEBUG)
         {
@@ -133,18 +136,18 @@ public class LightRenderPass extends RenderPass
             int light_index = 0;
             for (var entity : point_light_entities)
             {
-                var color = Component.Color.<Vector4f>for_entity(ecs, entity);
-                var position = Component.RenderPosition.<Vector3f>for_entity(ecs, entity);
-                var radius = Component.LightRange.<MutableFloat>for_entity(ecs, entity);
+                var color = RenderComponent.Color.<Vector4f>for_entity(recs, entity);
+                var position = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, entity);
+                var radius = RenderComponent.LightRange.<MutableFloat>for_entity(recs, entity);
                 Vec4.map_at_index(transform_segment, light_index, position.x, position.y, position.z, radius.value);
                 Vec3.map_at_index(color_segment, light_index, color.x, color.y, color.z);
                 light_index++;
             }
             for (var entity : spot_light_entities)
             {
-                var color = Component.Color.<Vector4f>for_entity(ecs, entity);
-                var position = Component.RenderPosition.<Vector3f>for_entity(ecs, entity);
-                var radius = Component.LightRange.<MutableFloat>for_entity(ecs, entity);
+                var color = RenderComponent.Color.<Vector4f>for_entity(recs, entity);
+                var position = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, entity);
+                var radius = RenderComponent.LightRange.<MutableFloat>for_entity(recs, entity);
                 Vec4.map_at_index(transform_segment, light_index, position.x, position.y, position.z, radius.value);
                 Vec3.map_at_index(color_segment, light_index, color.x, color.y, color.z);
                 light_index++;
@@ -205,7 +208,7 @@ public class LightRenderPass extends RenderPass
         point_light_entities.clear();
         spot_light_entities.clear();
 
-        var lights = ecs.get_components(Component.Light);
+        var lights = recs.get_components(RenderComponent.Light);
         if (lights.isEmpty())
         {
             return;
@@ -240,7 +243,7 @@ public class LightRenderPass extends RenderPass
             int light_index = 0;
             for (var light : point_light_entities)
             {
-                PointLight.ecs_map_at_index(point_segment, light_index++, ecs, light);
+                PointLight.ecs_map_at_index(point_segment, light_index++, recs, light);
             }
             point_light_buffer.put(0, point_segment.asByteBuffer(), 0, (int) PointLight.LAYOUT.byteSize() * point_light_count.value);
         }
@@ -250,7 +253,7 @@ public class LightRenderPass extends RenderPass
             int light_index = 0;
             for (var light : spot_light_entities)
             {
-                SpotLight.ecs_map_at_index(spot_segment, light_index++, ecs, light);
+                SpotLight.ecs_map_at_index(spot_segment, light_index++, recs, light);
             }
             spot_light_buffer.put(0, spot_segment.asByteBuffer(), 0, (int) SpotLight.LAYOUT.byteSize() * spot_light_count.value);
         }

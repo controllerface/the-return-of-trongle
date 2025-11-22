@@ -10,11 +10,12 @@ import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexBuffer;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
 import com.juncture.alloy.gpu.gl.textures.GL_Texture;
-import com.juncture.alloy.physics.bvh.RenderNode;
-import com.juncture.alloy.physics.bvh.RenderTree;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.math.Bounds3f;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.RenderExtents;
+import com.juncture.alloy.utils.math.bvh.Octree3f;
+import com.juncture.alloy.utils.math.bvh.OctreeNode3f;
 import com.juncture.alloy.utils.memory.opengl.DrawElementsIndirectCommand;
 import com.juncture.alloy.utils.noise.FastNoiseLite;
 import com.controllerface.trongle.components.Component;
@@ -98,7 +99,7 @@ public class TerrainRenderPass extends RenderPass
     private int max_render_patch_count;
 
     private final WorldCamera camera;
-    private final RenderTree render_tree;
+    private final Octree3f render_tree;
 
     private GL_Shader dbg_shader;
     private GL_VertexArray dbg_vao;
@@ -115,9 +116,9 @@ public class TerrainRenderPass extends RenderPass
 
     private final MutableFloat time_index;
 
-    public TerrainRenderPass(ECSLayer<Component> ecs)
+    public TerrainRenderPass(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
     {
-        this.camera = Component.MainCamera.global(ecs);
+        this.camera = RenderComponent.MainCamera.global(recs);
         this.time_index = Component.TimeIndex.global(ecs);
 
         terrain_ranges = generate_height_intervals(BOTTOM_RANGE, TOP_RANGE, FLOOR);
@@ -154,7 +155,7 @@ public class TerrainRenderPass extends RenderPass
 
         var root_bounds = new Bounds3f();
         root_bounds.update(world_extents);
-        render_tree = new RenderTree(root_bounds, tree_queue, TREE_MIN_NODE_SIZE, 8);
+        render_tree = new Octree3f(root_bounds, tree_queue, TREE_MIN_NODE_SIZE, 8);
 
         var command_buffer_size = DrawElementsIndirectCommand.calculate_buffer_size(patch_count);
         cbo = GPU.GL.command_buffer(resources, command_buffer_size);
@@ -300,13 +301,13 @@ public class TerrainRenderPass extends RenderPass
         return bounds;
     }
 
-    public void collectNodes(List<BoundsEntry> nodeList, RenderNode node)
+    public void collectNodes(List<BoundsEntry> nodeList, OctreeNode3f node)
     {
         nodeList.add(new BoundsEntry(node.bounds, blue));
         node.objects.forEach(o -> nodeList.add(new BoundsEntry(o, green)));
         if (node.children != null)
         {
-            for (RenderNode child : node.children)
+            for (var child : node.children)
             {
                 if (child != null)
                 {

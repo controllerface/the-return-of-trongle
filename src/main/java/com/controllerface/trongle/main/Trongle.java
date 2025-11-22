@@ -11,37 +11,48 @@ import com.controllerface.trongle.events.GameEvent;
 import com.controllerface.trongle.events.ModeSwitchEvent;
 import com.controllerface.trongle.systems.camera.UniformViewSystem;
 import com.controllerface.trongle.systems.input.InputSystem;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
 
 import java.util.logging.Logger;
 
 public class Trongle extends GameContext
 {
+    private static final String WINDOW_TITLE = "The Return of Trongle - Prototype";
+
     private static final Logger LOGGER = Logger.getLogger(Trongle.class.getName());
 
     private final GameMode main_menu;
     private final GameMode base_game;
 
-    private final ECSLayer<Component> ecs1;
+    private final ECSLayer<Component> ecs;
+    private final ECSLayer<PhysicsComponent> pecs;
+    private final ECSLayer<RenderComponent> recs;
 
     public Trongle()
     {
-        super("The Return of Trongle - Prototype", Component.class);
+        super(WINDOW_TITLE);
 
-        ecs1 = new ECSLayer<>(Component.class);
-        ecs.register(Component.class, ecs1);
+        ecs = new ECSLayer<>(Component.class);
+        pecs = new ECSLayer<>(PhysicsComponent.class);
+        recs = new ECSLayer<>(RenderComponent.class);
 
-        ecs1.set_global(Component.Events, event_bus);
-        ecs1.set_global(Component.MainWindow, window);
-        ecs1.set_global(Component.MainCamera, new WorldCamera(window, event_bus));
-        ecs1.set_global(Component.Models, new ModelRegistry<>(GLTFModel.class, "/models/"));
+        world.register(Component.class, ecs);
+        world.register(PhysicsComponent.class, pecs);
+        world.register(RenderComponent.class, recs);
 
-        ecs1.register_system(new InputSystem(ecs1));
-        ecs1.register_system(new UniformViewSystem(ecs1));
+        ecs.set_global(Component.Events, event_bus);
+        recs.set_global(RenderComponent.MainWindow, window);
+        recs.set_global(RenderComponent.MainCamera, new WorldCamera(window, event_bus));
+        recs.set_global(RenderComponent.Models, new ModelRegistry(GLTFModel.class, "/models/"));
+
+        world.register_system(new InputSystem(world));
+        world.register_system(new UniformViewSystem(world));
 
         event_bus.register(event_queue, GameEvent.MODE_SWiTCH);
 
-        base_game = new BaseGame(ecs1, gl_controller());
-        main_menu = new MainMenu(ecs1);
+        base_game = new BaseGame(world, gl_controller());
+        main_menu = new MainMenu(world);
 
         main_menu.init();
         base_game.init();

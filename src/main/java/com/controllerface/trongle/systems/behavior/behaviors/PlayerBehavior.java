@@ -7,6 +7,8 @@ import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.data.MutableInt;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.gpu.Window;
+import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.Ray3d;
 import com.controllerface.trongle.components.*;
@@ -82,18 +84,23 @@ public class PlayerBehavior
         }
     }
 
-    private static void handle_mouse_inputs(ECSLayer<Component> ecs, String entity_id, Vector3d position, InputState input_state)
+    private static void handle_mouse_inputs(ECSLayer<Component> ecs,
+                                            ECSLayer<PhysicsComponent> pecs,
+                                            ECSLayer<RenderComponent> recs,
+                                            String entity_id,
+                                            Vector3d position,
+                                            InputState input_state)
     {
-        var mouse_ray_entity = Component.MouseRay.<String>global(ecs);
-        var mouse_ray        = Component.RayCast.<Ray3d>for_entity(ecs, mouse_ray_entity);
-        var hit_scan_found   = Component.RayCastFound.<MutableBoolean>for_entity(ecs, mouse_ray_entity);
-        var ray_cast_hit     = Component.RayCastHit.<Vector3d>for_entity(ecs, mouse_ray_entity);
+        var mouse_ray_entity = PhysicsComponent.MouseRay.<String>global(pecs);
+        var mouse_ray        = PhysicsComponent.RayCast.<Ray3d>for_entity(pecs, mouse_ray_entity);
+        var hit_scan_found   = PhysicsComponent.RayCastFound.<MutableBoolean>for_entity(pecs, mouse_ray_entity);
+        var ray_cast_hit     = PhysicsComponent.RayCastHit.<Vector3d>for_entity(pecs, mouse_ray_entity);
 
-        var camera_yaw       = Component.CameraYaw.<MutableFloat>global(ecs);
-        var camera_pitch     = Component.CameraPitch.<MutableFloat>global(ecs);
-        var camera_zoom      = Component.CameraZoom.<MutableFloat>global(ecs);
+        var camera_yaw       = RenderComponent.CameraYaw.<MutableFloat>global(recs);
+        var camera_pitch     = RenderComponent.CameraPitch.<MutableFloat>global(recs);
+        var camera_zoom      = RenderComponent.CameraZoom.<MutableFloat>global(recs);
 
-        handle_aiming(ecs, input_state, mouse_ray);
+        handle_aiming(ecs, recs, input_state, mouse_ray);
 
         double scroll = input_state.get_scroll();
         if (scroll != 0)
@@ -111,10 +118,13 @@ public class PlayerBehavior
         }
     }
 
-    private static void handle_aiming(ECSLayer<Component> ecs, InputState input_state, Ray3d mouse_ray)
+    private static void handle_aiming(ECSLayer<Component> ecs,
+                                      ECSLayer<RenderComponent> recs,
+                                      InputState input_state,
+                                      Ray3d mouse_ray)
     {
-        var window = Component.MainWindow.<Window>global(ecs);
-        var camera = Component.MainCamera.<WorldCamera>global(ecs);
+        var window = RenderComponent.MainWindow.<Window>global(recs);
+        var camera = RenderComponent.MainCamera.<WorldCamera>global(recs);
 
         var mouse_pos = input_state.get_mouse_pos();
 
@@ -155,25 +165,29 @@ public class PlayerBehavior
         mouse_ray.inv_direction().set(target_vec3_buffer);
     }
 
-    public static void behave(double dt, ECSLayer<Component> ecs, String entity_id)
+    public static void behave(double dt,
+                              ECSLayer<Component> ecs,
+                              ECSLayer<PhysicsComponent> pecs,
+                              ECSLayer<RenderComponent> recs,
+                              String entity_id)
     {
         var input_state   = Component.Input.<InputState>global(ecs);
-        var velocity      = Component.Velocity.<Vector3d>for_entity(ecs, entity_id);
-        var position      = Component.Position.<Vector3d>for_entity(ecs, entity_id);
-        var rotation      = Component.Rotation.<Vector3d>for_entity(ecs, entity_id);
-        var heading       = Component.Heading.<Vector3d>for_entity(ecs, entity_id);
-        var thrust        = Component.Thrust.<MutableFloat>for_entity(ecs, entity_id);
-        var yaw           = Component.Yaw.<MutableFloat>for_entity(ecs, entity_id);
-        var ang_velocity  = Component.AngularVelocity.<MutableFloat>for_entity(ecs, entity_id);
-        var max_speed     = Component.MaxSpeed.<MutableFloat>for_entity(ecs, entity_id);
-        var max_ang_speed = Component.MaxAngSpeed.<MutableFloat>for_entity(ecs, entity_id);
-        var max_pitch     = Component.MaxPitch.<MutableFloat>for_entity(ecs, entity_id);
-        var max_roll      = Component.MaxRoll.<MutableFloat>for_entity(ecs, entity_id);
+        var velocity      = PhysicsComponent.Velocity.<Vector3d>for_entity(pecs, entity_id);
+        var position      = PhysicsComponent.Position.<Vector3d>for_entity(pecs, entity_id);
+        var rotation      = PhysicsComponent.Rotation.<Vector3d>for_entity(pecs, entity_id);
+        var heading       = PhysicsComponent.Heading.<Vector3d>for_entity(pecs, entity_id);
+        var thrust        = PhysicsComponent.Thrust.<MutableFloat>for_entity(pecs, entity_id);
+        var yaw           = PhysicsComponent.Yaw.<MutableFloat>for_entity(pecs, entity_id);
+        var ang_velocity  = PhysicsComponent.AngularVelocity.<MutableFloat>for_entity(pecs, entity_id);
+        var max_speed     = PhysicsComponent.MaxSpeed.<MutableFloat>for_entity(pecs, entity_id);
+        var max_ang_speed = PhysicsComponent.MaxAngSpeed.<MutableFloat>for_entity(pecs, entity_id);
+        var max_pitch     = PhysicsComponent.MaxPitch.<MutableFloat>for_entity(pecs, entity_id);
+        var max_roll      = PhysicsComponent.MaxRoll.<MutableFloat>for_entity(pecs, entity_id);
 
         CommonBehavior.zero_for_next_tick(position, thrust, yaw);
         CommonBehavior.update_heading(heading, rotation);
         handle_key_inputs(input_state, thrust, velocity, ang_velocity, yaw, rotation, max_ang_speed);
-        handle_mouse_inputs(ecs, entity_id, position, input_state);
+        handle_mouse_inputs(ecs, pecs, recs, entity_id, position, input_state);
         //CommonBehavior.handle_movement_tilt(velocity, heading, rotation, ang_velocity, max_speed, max_ang_speed, max_pitch, max_roll);
     }
 }

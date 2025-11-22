@@ -4,11 +4,13 @@ import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.MutableFloat;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.Window;
 import com.controllerface.trongle.components.Component;
+import com.juncture.alloy.rendering.RenderComponent;
 import org.joml.Vector3f;
 
-public class CameraSystem extends ECSSystem<Component>
+public class CameraSystem extends ECSSystem
 {
     private static final float CENTER_PITCH = -90f;
     private static final float CENTER_YAW   =   0f;
@@ -27,15 +29,21 @@ public class CameraSystem extends ECSSystem<Component>
     private final WorldCamera camera;
     private final Window window;
 
-    public CameraSystem(ECSLayer<Component> ecs)
-    {
-        super(ecs);
+    private final ECSLayer<Component> ecs;
+    private final ECSLayer<RenderComponent> recs;
 
-        window = Component.MainWindow.global(ecs);
-        camera = Component.MainCamera.global(ecs);
-        ecs.set_global(Component.CameraYaw, delta_yaw);
-        ecs.set_global(Component.CameraPitch, delta_pitch);
-        ecs.set_global(Component.CameraZoom, delta_zoom);
+    public CameraSystem(ECSWorld world)
+    {
+        super(world);
+
+        ecs = world.get(Component.class);
+        recs = world.get(RenderComponent.class);
+
+        window = RenderComponent.MainWindow.global(recs);
+        camera = RenderComponent.MainCamera.global(recs);
+        recs.set_global(RenderComponent.CameraYaw, delta_yaw);
+        recs.set_global(RenderComponent.CameraPitch, delta_pitch);
+        recs.set_global(RenderComponent.CameraZoom, delta_zoom);
 
         camera.set_pitch_range(CENTER_PITCH - PITCH_RANGE, CENTER_PITCH + PITCH_RANGE);
         camera.set_yaw_range(CENTER_YAW - YAW_RANGE, CENTER_YAW + YAW_RANGE);
@@ -47,7 +55,7 @@ public class CameraSystem extends ECSSystem<Component>
 
         var player = ecs.get_first_entity(Component.Player);
         assert player != null;
-        player_position = Component.RenderPosition.for_entity(ecs, player);
+        player_position = RenderComponent.RenderPosition.for_entity(recs, player);
     }
 
     @Override

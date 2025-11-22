@@ -1,6 +1,7 @@
 package com.controllerface.trongle.main;
 
 import com.juncture.alloy.ecs.ECSLayer;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.EventBus;
 import com.controllerface.trongle.components.Component;
@@ -19,9 +20,10 @@ public class MainMenu extends GameMode
 
     private final ECSLayer<Component> ecs;
 
-    public MainMenu(ECSLayer<Component> _ecs)
+    public MainMenu(ECSWorld world)
     {
-        this.ecs = _ecs;
+        super(world);
+        this.ecs = world.get(Component.class);
     }
 
     private MenuRenderSystem rendering_system;
@@ -31,7 +33,7 @@ public class MainMenu extends GameMode
     {
         input_state = Component.Input.global(ecs);
         event_bus = Component.Events.global(ecs);
-        rendering_system = new MenuRenderSystem(ecs);
+        rendering_system = new MenuRenderSystem(world);
     }
 
     @Override
@@ -55,13 +57,13 @@ public class MainMenu extends GameMode
         if (!first_load) rendering_system.capture_screen();
         if (first_load) first_load = false;
         latched = true;
-        ecs.register_system(rendering_system);
+        world.register_system(rendering_system);
     }
 
     @Override
     public void deactivate()
     {
-        ecs.deregister_system(rendering_system);
+        world.deregister_system(rendering_system);
     }
 
     @Override
