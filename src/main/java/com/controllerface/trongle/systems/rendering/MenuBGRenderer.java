@@ -5,8 +5,8 @@ import com.juncture.alloy.gpu.Renderer;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
 import com.juncture.alloy.gpu.gl.textures.GL_Texture;
+import com.juncture.alloy.rendering.Texture_BindPoint;
 
-import static com.controllerface.trongle.systems.rendering.GeometryRenderer.Texture_BindPoint.BACKGROUND;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL11C.glDrawArrays;
 
@@ -49,7 +49,7 @@ public class MenuBGRenderer extends Renderer
         vao.enable_attribute(UV_ATTRIBUTE);
 
         shader.use();
-        shader.uploadInt(BACKGROUND.varName, 0);
+        shader.uploadInt(Texture_BindPoint.BACKGROUND.varName, 0);
         shader.detach();
     }
 

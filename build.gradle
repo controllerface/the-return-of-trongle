@@ -24,6 +24,7 @@ dependencies {
     implementation "com.juncture:alloy-ui:1.0-SNAPSHOT"
     implementation "com.juncture:alloy-physics:1.0-SNAPSHOT"
     implementation "com.juncture:alloy-rendering:1.0-SNAPSHOT"
+    implementation "com.juncture:alloy-base:1.0-SNAPSHOT"
 
     implementation "org.lwjgl:lwjgl"
     implementation "org.lwjgl:lwjgl-freetype"

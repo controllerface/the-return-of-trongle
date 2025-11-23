@@ -32,7 +32,7 @@ public class MainMenu extends GameMode
     public void init()
     {
         input_state = Component.Input.global(ecs);
-        event_bus = Component.Events.global(ecs);
+        event_bus = world.event_bus;
         rendering_system = new MenuRenderSystem(world);
     }
 

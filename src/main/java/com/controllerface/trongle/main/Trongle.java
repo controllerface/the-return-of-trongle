@@ -9,10 +9,10 @@ import com.juncture.alloy.models.ModelRegistry;
 import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.events.GameEvent;
 import com.controllerface.trongle.events.ModeSwitchEvent;
-import com.controllerface.trongle.systems.camera.UniformViewSystem;
 import com.controllerface.trongle.systems.input.InputSystem;
 import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.rendering.RenderComponent;
+import com.juncture.alloy.rendering.camera.UniformViewSystem;
 
 import java.util.logging.Logger;
 
@@ -25,23 +25,18 @@ public class Trongle extends GameContext
     private final GameMode main_menu;
     private final GameMode base_game;
 
-    private final ECSLayer<Component> ecs;
-    private final ECSLayer<PhysicsComponent> pecs;
-    private final ECSLayer<RenderComponent> recs;
-
     public Trongle()
     {
         super(WINDOW_TITLE);
 
-        ecs = new ECSLayer<>(Component.class);
-        pecs = new ECSLayer<>(PhysicsComponent.class);
-        recs = new ECSLayer<>(RenderComponent.class);
+        var ecs  = new ECSLayer<>(Component.class);
+        var pecs = new ECSLayer<>(PhysicsComponent.class);
+        var recs = new ECSLayer<>(RenderComponent.class);
 
         world.register(Component.class, ecs);
         world.register(PhysicsComponent.class, pecs);
         world.register(RenderComponent.class, recs);
 
-        ecs.set_global(Component.Events, event_bus);
         recs.set_global(RenderComponent.MainWindow, window);
         recs.set_global(RenderComponent.MainCamera, new WorldCamera(window, event_bus));
         recs.set_global(RenderComponent.Models, new ModelRegistry(GLTFModel.class, "/models/"));

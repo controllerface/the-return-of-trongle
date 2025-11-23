@@ -1,6 +1,7 @@
 package com.controllerface.trongle.systems.rendering;
 
 import com.juncture.alloy.ecs.ECSLayer;
+import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.events.CoreEvent;
 import com.juncture.alloy.events.Event;
 import com.juncture.alloy.events.EventBus;
@@ -19,6 +20,7 @@ import com.juncture.alloy.gpu.gl.textures.GL_TextureArray;
 import com.controllerface.trongle.components.Component;
 import com.controllerface.trongle.systems.rendering.hud.SnapPosition;
 import com.controllerface.trongle.systems.rendering.hud.TextContainer;
+import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.rendering.RenderComponent;
 
 import java.nio.FloatBuffer;
@@ -66,12 +68,13 @@ public class DebugHUDRenderer extends RenderPass
 
     private final Window window;
 
-    public DebugHUDRenderer(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs)
+    public DebugHUDRenderer(ECSWorld world)
     {
+        var recs = world.get(RenderComponent.class);
+
         this.window = RenderComponent.MainWindow.global(recs);
 
-        var event_bus = Component.Events.<EventBus>global(ecs);
-        event_bus.register(event_queue,
+        world.event_bus.register(event_queue,
             CoreEvent.WINDOW_RESIZE,
             CoreEvent.FPS,
             DebugEvent.VIEW_PITCH,

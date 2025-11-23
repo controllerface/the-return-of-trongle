@@ -26,15 +26,11 @@ public class MenuRenderSystem extends ECSSystem
 
     private final Window window;
 
-    private final ECSLayer<Component> ecs;
-    private final ECSLayer<RenderComponent> recs;
-
     public MenuRenderSystem(ECSWorld world)
     {
         super(world);
 
-        this.ecs = world.get(Component.class);
-        this.recs = world.get(RenderComponent.class);
+        var recs = world.get(RenderComponent.class);
 
         window = RenderComponent.MainWindow.global(recs);
 
@@ -42,7 +38,7 @@ public class MenuRenderSystem extends ECSSystem
 
         renderers.add(new MenuBGRenderer(gl_texture));
 //        renderers.add(new MenuRenderer_UI(ecs));
-        renderers.add(new MenuRenderer(ecs, recs));
+        renderers.add(new MenuRenderer(world));
 
         this.r = 0.01f;
         this.g = 0.01f;

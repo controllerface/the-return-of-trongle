@@ -3,13 +3,11 @@ package com.controllerface.trongle.components;
 import com.juncture.alloy.data.*;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSComponent;
-import com.juncture.alloy.events.EventBus;
 import com.juncture.alloy.utils.math.*;
 import com.controllerface.trongle.systems.behavior.AxisDirection;
 import com.controllerface.trongle.systems.behavior.EntityBehavior;
 import com.controllerface.trongle.systems.behavior.behaviors.MovementDirection;
 import com.controllerface.trongle.systems.input.InputState;
-import org.joml.Vector3f;
 
 public enum Component implements ECSComponent<Component>
 {
@@ -37,20 +35,6 @@ public enum Component implements ECSComponent<Component>
 
     // Particles
     Explosion           (Marker.class),
-    Particle            (Marker.class),
-    ParticleVelocity    (Vector3f.class),
-    ParticleGravity     (Vector3f.class),
-    ParticleColor       (Vector3f.class),
-    TrailTipColor       (Vector3f.class),
-    TrailTailColor      (Vector3f.class),
-
-    // Lights
-    SunLight            (Marker.class),
-    MoonLight           (Marker.class),
-    TimeOfDay           (MutableFloat.class),
-
-    // Events
-    Events              (EventBus.class),
 
     ;
 

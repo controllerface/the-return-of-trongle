@@ -8,11 +8,10 @@ import com.juncture.alloy.gpu.Window;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
 import com.juncture.alloy.gpu.gl.textures.GL_ShadowTexture;
-import com.controllerface.trongle.components.Component;
 import com.juncture.alloy.rendering.RenderComponent;
 import org.joml.Matrix4f;
 
-import static com.controllerface.trongle.systems.rendering.GeometryRenderer.Texture_BindPoint.SHADOW_MAP;
+import static com.juncture.alloy.rendering.Texture_BindPoint.SHADOW_MAP;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11C.glDrawArrays;
 
@@ -52,7 +51,7 @@ public class ShadowDebugPass extends RenderPass
         1.0f, 1.0f
     };
 
-    public ShadowDebugPass(ECSLayer<Component> ecs, ECSLayer<RenderComponent> recs, GL_ShadowTexture shadow_texture)
+    public ShadowDebugPass(ECSLayer<RenderComponent> recs, GL_ShadowTexture shadow_texture)
     {
         this.shadow_texture = shadow_texture;
         this.light_space_matrix = RenderComponent.LightSpaceMatrix.global(recs);

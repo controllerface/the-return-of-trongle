@@ -1,5 +1,8 @@
 package com.controllerface.trongle.main;
 
+import com.juncture.alloy.base.ParticleSystem;
+import com.juncture.alloy.base.TransformUpdateSystem;
+import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.*;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
@@ -13,21 +16,19 @@ import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.physics.PhysicsSystem;
 import com.juncture.alloy.physics.PhysicsTypes;
 import com.juncture.alloy.rendering.RenderTypes;
+import com.juncture.alloy.rendering.RenderingSystem;
+import com.juncture.alloy.rendering.camera.CameraSystem;
+import com.juncture.alloy.rendering.camera.LightSpaceSystem;
 import com.juncture.alloy.utils.math.MathEX;
 import com.juncture.alloy.utils.math.Ray3d;
 import com.controllerface.trongle.components.*;
 import com.controllerface.trongle.events.GameEvent;
 import com.controllerface.trongle.events.ModeSwitchEvent;
 import com.controllerface.trongle.systems.behavior.EntityBehaviorSystem;
-import com.controllerface.trongle.systems.camera.CameraSystem;
-import com.controllerface.trongle.systems.camera.LightSpaceSystem;
 import com.controllerface.trongle.systems.input.InputBinding;
 import com.controllerface.trongle.systems.input.InputState;
-import com.controllerface.trongle.systems.physics.TransformUpdateSystem;
-import com.controllerface.trongle.systems.physics.UpkeepSystem;
+import com.controllerface.trongle.systems.UpkeepSystem;
 import com.controllerface.trongle.systems.rendering.DebugRenderingSystem;
-import com.controllerface.trongle.systems.rendering.ParticleSystem;
-import com.controllerface.trongle.systems.rendering.RenderingSystem;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -54,7 +55,7 @@ public class BaseGame extends GameMode
     private String player_entity;
 
     private InputState input_state;
-    private EventBus event_bus;
+    private final EventBus event_bus;
     boolean latched = false;
 
     private final MutableFloat time_index = new MutableFloat(0.0f);
@@ -70,6 +71,7 @@ public class BaseGame extends GameMode
     public BaseGame(ECSWorld world, GL_GraphicsController glController)
     {
         super(world);
+        event_bus = world.event_bus;
         ecs = world.get(Component.class);
         pecs = world.get(PhysicsComponent.class);
         recs = world.get(RenderComponent.class);
@@ -85,24 +87,33 @@ public class BaseGame extends GameMode
         pecs.set_global(PhysicsComponent.MouseRay, mouse_ray_entity);
         pecs.set_global(PhysicsComponent.SimulationRemainder, new MutableDouble(0.0f));
 
-        ecs.set_global(Component.TimeOfDay, time_of_day);
+        recs.set_global(RenderComponent.TimeOfDay, time_of_day);
         recs.set_global(RenderComponent.PointLightCount, new MutableInt(0));
         recs.set_global(RenderComponent.SpotLightCount, new MutableInt(0));
 
         day_speed = calculate_day_speed(DAY_LENGTH);
 
         var sun_light_entity = world.new_entity();
-        ecs.set_component(sun_light_entity, Component.SunLight, Marker.MARKED);
+        recs.set_component(sun_light_entity, RenderComponent.SunLight, Marker.MARKED);
         recs.set_component(sun_light_entity, RenderComponent.Color, new Vector4f(0.93f, 0.90f, 0.71f, 1.0f));
         recs.set_component(sun_light_entity, RenderComponent.Direction, sun_direction);
         recs.set_component(sun_light_entity, RenderComponent.LightIntensity, new LightIntensity(0.005f, 0.5f));
 
         var moon_light_entity = world.new_entity();
-        ecs.set_component(moon_light_entity, Component.MoonLight, Marker.MARKED);
+        recs.set_component(moon_light_entity, RenderComponent.MoonLight, Marker.MARKED);
         recs.set_component(moon_light_entity, RenderComponent.Color, new Vector4f(0.04f, 0.07f, 0.32f, 1.0f));
         recs.set_component(moon_light_entity, RenderComponent.Direction, moon_direction);
         recs.set_component(moon_light_entity, RenderComponent.LightIntensity, new LightIntensity(0.007f, 0.2f));
     }
+
+    private static final float CENTER_PITCH = -90f;
+    private static final float CENTER_YAW   =   0f;
+    private static final float PITCH_RANGE  =  15f;
+    private static final float YAW_RANGE    =  25f;
+    private static final float ZOOM_MIN     =  25f;
+    private static final float ZOOM_MAX     =  50f;
+    private static final float ZOOM_SPEED   =  10.0f;
+    private static final float ZOOM_RATE    =  0.001f;
 
     private void init_systems()
     {
@@ -112,8 +123,17 @@ public class BaseGame extends GameMode
         systems.add(new TransformUpdateSystem(world));
         systems.add(new CameraSystem(world));
         systems.add(new LightSpaceSystem(world));
-        systems.add(new RenderingSystem(world, gl_controller));
+        systems.add(new RenderingSystem<>(world, gl_controller, GLTFModel.class));
         systems.add(new UpkeepSystem(world));
+
+        var camera = RenderComponent.MainCamera.<WorldCamera>global(recs);
+        camera.set_pitch_range(CENTER_PITCH - PITCH_RANGE, CENTER_PITCH + PITCH_RANGE);
+        camera.set_yaw_range(CENTER_YAW - YAW_RANGE, CENTER_YAW + YAW_RANGE);
+        camera.set_zoom_speed_limits(ZOOM_SPEED, ZOOM_RATE);
+        camera.set_zoom_distance_limits(ZOOM_MIN, ZOOM_MAX);
+        camera.set_pitch(CENTER_PITCH);
+        camera.set_yaw(CENTER_YAW);
+
 
         // for debugging todo: move below code to a proper debug start up process
         if (DEBUG_MODE) systems.add(new DebugRenderingSystem(world));
@@ -188,9 +208,7 @@ public class BaseGame extends GameMode
         ecs.set_global(Component.TimeIndex, time_index);
 
         input_state = Component.Input.global(ecs);
-        event_bus = Component.Events.global(ecs);
-
-        event_bus.register(event_queue, GameEvent.ENTITY_DESTROYED);
+        world.event_bus.register(event_queue, GameEvent.ENTITY_DESTROYED);
 
         init_world();
         init_player();
@@ -222,6 +240,8 @@ public class BaseGame extends GameMode
 
         var lights = RenderTypes.model_lights(world, recs, model, scale);
         var hulls =  RenderTypes.model_hulls(recs, model, player_entity);
+
+        recs.set_component(player_entity, RenderComponent.CameraFollow, Marker.MARKED);
 
         Archetypes.player(ecs, player_entity);
         RenderTypes.model(recs, player_entity, model, lights);

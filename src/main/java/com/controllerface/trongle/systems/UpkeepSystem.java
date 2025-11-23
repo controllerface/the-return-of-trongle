@@ -1,4 +1,4 @@
-package com.controllerface.trongle.systems.physics;
+package com.controllerface.trongle.systems;
 
 import com.juncture.alloy.data.LightIntensity;
 import com.juncture.alloy.data.MutableBoolean;
@@ -9,6 +9,7 @@ import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.events.EventBus;
 import com.juncture.alloy.physics.PhysicsComponent;
+import com.juncture.alloy.physics.PhysicsTypes;
 import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.rendering.RenderTypes;
 import com.juncture.alloy.utils.math.MathEX;
@@ -67,7 +68,7 @@ public class UpkeepSystem extends ECSSystem
         this.recs = this.world.get(RenderComponent.class);
 
         MathEX.generate_octal_spread(BLAST_PARTICLE_VECTORS);
-        event_bus = Component.Events.global(ecs);
+        event_bus = world.event_bus;
     }
 
     private void spawn_debris_particle(Vector3f particle_velocity,
@@ -82,7 +83,9 @@ public class UpkeepSystem extends ECSSystem
         particle_velocity.mul(speed);
         var entity = world.new_entity();
         RenderTypes.billboard(recs, entity, blast_location, size);
-        Archetypes.particle(ecs, entity, particle_velocity, gravity, color, lifetime);
+        PhysicsTypes.particle_p(pecs, entity, particle_velocity, gravity);
+        RenderTypes.particle_r(recs, entity, color);
+        Archetypes.particle(ecs, entity,lifetime);
     }
 
     private void spawn_blast(Vector3f blast_location)

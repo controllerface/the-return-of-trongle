@@ -6,16 +6,16 @@ import java.util.logging.Logger;
 
 public class Main
 {
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 
-    public static void main(String[] args)
+    static void main()
     {
         GameConfig.setup();
 
-        LOGGER.info("Starting up");
+        //LOGGER.info("Starting up");
 
         new Trongle().run();
 
-        LOGGER.info("Shutting down");
+        //LOGGER.info("Shutting down");
     }
 }
