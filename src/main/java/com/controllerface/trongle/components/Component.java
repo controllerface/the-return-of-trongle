@@ -1,24 +1,17 @@
 package com.controllerface.trongle.components;
 
+import com.controllerface.trongle.systems.input.InputState;
 import com.juncture.alloy.data.*;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSComponent;
 import com.juncture.alloy.utils.math.*;
-import com.controllerface.trongle.systems.behavior.AxisDirection;
 import com.controllerface.trongle.systems.behavior.EntityBehavior;
-import com.controllerface.trongle.systems.behavior.behaviors.MovementDirection;
-import com.controllerface.trongle.systems.input.InputState;
 
 public enum Component implements ECSComponent<Component>
 {
     // Behaviors
     Behavior            (EntityBehavior.class),
-    CurrentDirection    (MovementDirection.class),
-    CurrentThrustAxis   (AxisDirection.class),
-    CurrentYawAxis      (AxisDirection.class),
-    CurrentTurnTime     (MutableDouble.class),
-    TurnTime            (MutableDouble.class),
-
+    
     // Player
     Player              (Marker.class),
     Input               (InputState.class),
@@ -28,10 +21,8 @@ public enum Component implements ECSComponent<Component>
     HitScanWeapon       (Marker.class),
     Projectile          (Marker.class),
     Integrity           (MutableFloat.class),
-    Lifetime            (MutableDouble.class),
-    MaxLifetime         (MutableDouble.class),
+
     ProjectileDamage    (MutableFloat.class),
-    TimeIndex           (MutableFloat.class),
 
     // Particles
     Explosion           (Marker.class),
@@ -46,13 +37,6 @@ public enum Component implements ECSComponent<Component>
 
     private final Class<?> data_class;
     private final SubType sub_type;
-
-    Component(Class<?> data_class, SubType sub_type)
-    {
-        this.data_class = data_class;
-        this.sub_type = sub_type;
-        assert sub_type != SubType.GROUP || data_class == String[].class;
-    }
 
     Component(Class<?> data_class)
     {

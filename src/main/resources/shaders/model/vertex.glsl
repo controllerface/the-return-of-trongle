@@ -53,8 +53,8 @@ void main()
     vColor = aColor;
 
     // transpose inverse needed only if non-uniform scaling is supported
-    //mat3 normalMatrix = transpose(inverse(mat3(mdl)));
     mat3 normalMatrix = mat3(world);
+    normalMatrix = transpose(inverse(normalMatrix));
 
     vec3 T = normalize(normalMatrix * aTangent);
     vec3 B = normalize(normalMatrix * aBitangent);

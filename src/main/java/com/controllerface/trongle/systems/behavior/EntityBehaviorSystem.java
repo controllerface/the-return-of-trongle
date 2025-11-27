@@ -3,7 +3,6 @@ package com.controllerface.trongle.systems.behavior;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.controllerface.trongle.components.Component;
-import com.controllerface.trongle.systems.behavior.behaviors.PlayerBehavior;
 import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.rendering.RenderComponent;

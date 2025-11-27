@@ -1,6 +1,9 @@
 package com.controllerface.trongle.systems.input;
 
-public enum InputBinding
+import com.juncture.alloy.input.BindingType;
+import com.juncture.alloy.input.IInputBinding;
+
+public enum InputBinding implements IInputBinding<InputBinding>
 {
     ESCAPE(BindingType.KEY),
 
@@ -19,16 +22,7 @@ public enum InputBinding
 
     ;
 
-    InputBinding(BindingType bindingType)
-    {
-        binding_type = bindingType;
-    }
-
-    public enum BindingType
-    {
-        KEY,
-        MOUSE
-    }
-
-    public final BindingType binding_type;
+    private final BindingType binding_type;
+    InputBinding(BindingType bindingType) { binding_type = bindingType; }
+    @Override public BindingType type() { return binding_type; }
 }

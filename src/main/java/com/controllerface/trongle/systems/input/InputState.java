@@ -1,5 +1,6 @@
 package com.controllerface.trongle.systems.input;
 
+import com.juncture.alloy.input.IInputState;
 import org.joml.Vector2d;
 import org.joml.Vector2dc;
 
@@ -8,7 +9,7 @@ import java.util.Map;
 
 import static org.lwjgl.glfw.GLFW.*;
 
-public class InputState
+public class InputState implements IInputState<InputBinding>
 {
     private final boolean[] keys          = new boolean[350];
     private final boolean[] mouse         = new boolean[9];
@@ -47,31 +48,37 @@ public class InputState
         }
     }
 
+    @Override
     public void signal_mouse_down()
     {
         mouse_count++;
     }
 
+    @Override
     public void signal_mouse_up()
     {
         mouse_count--;
     }
 
+    @Override
     public boolean any_mouse_buttons_held()
     {
         return mouse_count > 0;
     }
 
+    @Override
     public double get_scroll()
     {
         return mouse_scroll;
     }
 
+    @Override
     public Vector2dc get_mouse_pos()
     {
         return mouse_pos;
     }
 
+    @Override
     public void calculate_mouse_delta(Vector2d output)
     {
         float dx = (float) (mouse_pos.x - mouse_pos_last.x);
@@ -79,27 +86,32 @@ public class InputState
         output.set(dx, dy);
     }
 
+    @Override
     public void mouse_pos_reset()
     {
         mouse_pos_last.set(mouse_pos);
     }
 
+    @Override
     public void mouse_scroll_reset()
     {
         mouse_scroll = 0;
     }
 
+    @Override
     public void mouse_move(double xpos, double ypos)
     {
         mouse_pos_last.set(mouse_pos);
         mouse_pos.set(xpos, ypos);
     }
 
+    @Override
     public void mouse_scroll(double scroll_offset)
     {
         mouse_scroll = scroll_offset;
     }
 
+    @Override
     public void mouse_press(int button)
     {
         if (button < mouse.length)
@@ -108,6 +120,7 @@ public class InputState
         }
     }
 
+    @Override
     public void mouse_release(int button)
     {
         if (button < mouse.length)
@@ -116,6 +129,7 @@ public class InputState
         }
     }
 
+    @Override
     public void key_press(int button)
     {
         if (button < keys.length)
@@ -124,6 +138,7 @@ public class InputState
         }
     }
 
+    @Override
     public void key_release(int button)
     {
         if (button < keys.length)
@@ -132,9 +147,10 @@ public class InputState
         }
     }
 
+    @Override
     public boolean is_active(InputBinding binding)
     {
-        return switch (binding.binding_type)
+        return switch (binding.type())
         {
             case KEY   -> keys[BINDINGS.get(binding)];
             case MOUSE -> mouse[BINDINGS.get(binding)];

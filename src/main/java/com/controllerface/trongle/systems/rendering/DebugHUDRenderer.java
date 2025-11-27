@@ -1,10 +1,8 @@
 package com.controllerface.trongle.systems.rendering;
 
-import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.events.CoreEvent;
 import com.juncture.alloy.events.Event;
-import com.juncture.alloy.events.EventBus;
 import com.juncture.alloy.events.MessageEvent;
 import com.juncture.alloy.events.debug.DebugEvent;
 import com.juncture.alloy.events.debug.PositionEvent;
@@ -17,11 +15,9 @@ import com.juncture.alloy.gpu.gl.buffers.GL_CommandBuffer;
 import com.juncture.alloy.gpu.gl.buffers.GL_VertexArray;
 import com.juncture.alloy.gpu.gl.shaders.GL_Shader;
 import com.juncture.alloy.gpu.gl.textures.GL_TextureArray;
-import com.controllerface.trongle.components.Component;
-import com.controllerface.trongle.systems.rendering.hud.SnapPosition;
-import com.controllerface.trongle.systems.rendering.hud.TextContainer;
-import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.rendering.RenderComponent;
+import com.juncture.alloy.ui.SnapPosition;
+import com.juncture.alloy.ui.TextContainer;
 
 import java.nio.FloatBuffer;
 import java.util.*;

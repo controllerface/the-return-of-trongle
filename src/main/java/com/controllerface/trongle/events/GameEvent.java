@@ -6,5 +6,4 @@ public enum GameEvent implements EventType
 {
     MODE_SWiTCH,
     ENTITY_DESTROYED,
-    ENEMY_COUNT_CHANGED,
 }

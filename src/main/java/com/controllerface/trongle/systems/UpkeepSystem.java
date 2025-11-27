@@ -84,8 +84,7 @@ public class UpkeepSystem extends ECSSystem
         var entity = world.new_entity();
         RenderTypes.billboard(recs, entity, blast_location, size);
         PhysicsTypes.particle_p(pecs, entity, particle_velocity, gravity);
-        RenderTypes.particle_r(recs, entity, color);
-        Archetypes.particle(ecs, entity,lifetime);
+        RenderTypes.particle_r(recs, entity, color, lifetime);
     }
 
     private void spawn_blast(Vector3f blast_location)
@@ -93,7 +92,7 @@ public class UpkeepSystem extends ECSSystem
         var blast_entity = world.new_entity();
         RenderTypes.billboard(recs, blast_entity, blast_location, EXPLOSION_SIZE);
         RenderTypes.blast_light(recs, blast_entity, blast_location, EXPLOSION_COLOR, EXPLOSION_LIGHT_INTENSITY_MAX, EXPLOSION_LIGHT_RANGE);
-        Archetypes.explosion(ecs, blast_entity, MAX_EXPLOSION_LIFETIME);
+        Archetypes.explosion(ecs, recs, blast_entity, MAX_EXPLOSION_LIFETIME);
 
         for (var particle_vector : BLAST_PARTICLE_VECTORS)
         {
@@ -157,8 +156,8 @@ public class UpkeepSystem extends ECSSystem
         if (explosion == null) return;
 
         var light_intensity = RenderComponent.LightIntensity.<LightIntensity>for_entity(recs, entity);
-        var lifetime        = Component.Lifetime.<MutableDouble>for_entity(ecs, entity);
-        var max_lifetime    = Component.MaxLifetime.<MutableDouble>for_entity(ecs, entity);
+        var lifetime        = RenderComponent.Lifetime.<MutableDouble>for_entity(recs, entity);
+        var max_lifetime    = RenderComponent.MaxLifetime.<MutableDouble>for_entity(recs, entity);
 
 
         float intensity = (float)(lifetime.value / max_lifetime.value);
@@ -174,8 +173,8 @@ public class UpkeepSystem extends ECSSystem
         var hit_scan = Component.HitScanWeapon.for_entity_or_null(ecs, entity);
         if (hit_scan == null) return;
 
-        var life = Component.Lifetime.<MutableDouble>for_entity(ecs, entity);
-        var max_life = Component.MaxLifetime.<MutableDouble>for_entity(ecs, entity);
+        var life = RenderComponent.Lifetime.<MutableDouble>for_entity(recs, entity);
+        var max_life = RenderComponent.MaxLifetime.<MutableDouble>for_entity(recs, entity);
         var quad = RenderComponent.HitScanTrail.<Quad3d>for_entity(recs, entity);
         var quad_r = RenderComponent.HitScanTrailRender.<Quad3d>for_entity(recs, entity);
         var l_pos = RenderComponent.RenderPosition.<Vector3f>for_entity(recs, entity);
@@ -205,11 +204,11 @@ public class UpkeepSystem extends ECSSystem
             update_hitscan_weapon(projectile_entity);
         }
 
-        var lifetimes = ecs.get_components(Component.Lifetime);
+        var lifetimes = recs.get_components(RenderComponent.Lifetime);
         for (var entry : lifetimes.entrySet())
         {
             var entity = entry.getKey();
-            MutableDouble lifetime = Component.Lifetime.coerce(entry.getValue());
+            MutableDouble lifetime = RenderComponent.Lifetime.coerce(entry.getValue());
             lifetime.value -= dt;
             if (lifetime.value <= 0) to_remove.add(entity);
             else update_explosion(entity);
