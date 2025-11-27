@@ -41,7 +41,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BaseGame extends GameMode
 {
-    private static final boolean DEBUG_MODE = false;
+    private static final boolean DEBUG_MODE = true;
 
     private static final float CENTER_PITCH = -90f;
     private static final float CENTER_YAW = 0f;
