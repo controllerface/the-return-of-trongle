@@ -41,7 +41,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class BaseGame extends GameMode
 {
-    private static final boolean DEBUG_MODE = true;
+    private static final boolean DEBUG_MODE = false;
 
     private static final float CENTER_PITCH = -90f;
     private static final float CENTER_YAW = 0f;
@@ -276,7 +276,7 @@ public class BaseGame extends GameMode
         // for debugging todo: move below code to a proper debug start up process
         if (DEBUG_MODE)
         {
-            var passes = List.<RenderPass>of(
+            var passes = List.of(
                 new ConvexHullRenderPass(pecs),
                 new RayCastRenderPass(pecs),
                 new BoundingBoxRenderPass(pecs, recs),
