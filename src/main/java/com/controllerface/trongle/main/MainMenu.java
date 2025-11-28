@@ -1,14 +1,14 @@
 package com.controllerface.trongle.main;
 
+import com.controllerface.trongle.events.ModeSwitchEvent;
+import com.controllerface.trongle.input.InputBinding;
+import com.controllerface.trongle.input.InputState;
+import com.controllerface.trongle.menu.MenuRenderSystem;
+import com.juncture.alloy.ecs.BaseComponent;
 import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.ecs.GameMode;
 import com.juncture.alloy.events.EventBus;
-import com.controllerface.trongle.components.Component;
-import com.controllerface.trongle.events.ModeSwitchEvent;
-import com.controllerface.trongle.systems.input.InputBinding;
-import com.controllerface.trongle.systems.input.InputState;
-import com.controllerface.trongle.systems.rendering.MenuRenderSystem;
 
 public class MainMenu extends GameMode
 {
@@ -18,12 +18,12 @@ public class MainMenu extends GameMode
     boolean latched = false;
     boolean first_load = true;
 
-    private final ECSLayer<Component> ecs;
+    private final ECSLayer<BaseComponent> base_layer;
 
     public MainMenu(ECSWorld world)
     {
         super(world);
-        this.ecs = world.get(Component.class);
+        this.base_layer = world.get(BaseComponent.class);
     }
 
     private MenuRenderSystem rendering_system;
@@ -31,7 +31,7 @@ public class MainMenu extends GameMode
     @Override
     public void init()
     {
-        input_state = Component.Input.global(ecs);
+        input_state = BaseComponent.Input.global(base_layer);
         event_bus = world.event_bus;
         rendering_system = new MenuRenderSystem(world);
     }

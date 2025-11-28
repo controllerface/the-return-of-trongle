@@ -1,4 +1,4 @@
-package com.controllerface.trongle.systems.input;
+package com.controllerface.trongle.input;
 
 import com.juncture.alloy.input.BindingType;
 import com.juncture.alloy.input.IInputBinding;

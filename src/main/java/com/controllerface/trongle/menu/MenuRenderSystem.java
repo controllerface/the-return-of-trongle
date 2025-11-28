@@ -1,6 +1,5 @@
-package com.controllerface.trongle.systems.rendering;
+package com.controllerface.trongle.menu;
 
-import com.juncture.alloy.ecs.ECSLayer;
 import com.juncture.alloy.ecs.ECSSystem;
 import com.juncture.alloy.ecs.ECSWorld;
 import com.juncture.alloy.gpu.GPU;
@@ -8,7 +7,6 @@ import com.juncture.alloy.gpu.GPUResourceGroup;
 import com.juncture.alloy.gpu.Renderer;
 import com.juncture.alloy.gpu.Window;
 import com.juncture.alloy.gpu.gl.textures.GL_Texture;
-import com.controllerface.trongle.components.Component;
 import com.juncture.alloy.rendering.RenderComponent;
 
 import java.util.ArrayList;
@@ -30,14 +28,13 @@ public class MenuRenderSystem extends ECSSystem
     {
         super(world);
 
-        var recs = world.get(RenderComponent.class);
+        var rend_layer = world.get(RenderComponent.class);
 
-        window = RenderComponent.MainWindow.global(recs);
+        window = RenderComponent.MainWindow.global(rend_layer);
 
         gl_texture = GPU.GL.new_texture(resources, true, "/img/bg.png");
 
         renderers.add(new MenuBGRenderer(gl_texture));
-//        renderers.add(new MenuRenderer_UI(ecs));
         renderers.add(new MenuRenderer(world));
 
         this.r = 0.01f;

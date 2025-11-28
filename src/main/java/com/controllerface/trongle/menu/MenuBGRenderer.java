@@ -1,4 +1,4 @@
-package com.controllerface.trongle.systems.rendering;
+package com.controllerface.trongle.menu;
 
 import com.juncture.alloy.gpu.GPU;
 import com.juncture.alloy.gpu.Renderer;

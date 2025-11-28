@@ -1,6 +1,8 @@
 package com.controllerface.trongle.main;
 
-import com.controllerface.trongle.systems.input.InputState;
+import com.controllerface.trongle.events.GameEvent;
+import com.controllerface.trongle.events.ModeSwitchEvent;
+import com.controllerface.trongle.input.InputState;
 import com.juncture.alloy.camera.WorldCamera;
 import com.juncture.alloy.data.MutableDouble;
 import com.juncture.alloy.data.MutableInt;
@@ -11,9 +13,6 @@ import com.juncture.alloy.events.Event;
 import com.juncture.alloy.game.GameContext;
 import com.juncture.alloy.input.InputSystem;
 import com.juncture.alloy.models.ModelRegistry;
-import com.controllerface.trongle.components.Component;
-import com.controllerface.trongle.events.GameEvent;
-import com.controllerface.trongle.events.ModeSwitchEvent;
 import com.juncture.alloy.physics.PhysicsComponent;
 import com.juncture.alloy.rendering.RenderComponent;
 import com.juncture.alloy.rendering.camera.UniformViewSystem;
@@ -33,26 +32,24 @@ public class Trongle extends GameContext
     {
         super(WINDOW_TITLE);
 
-        var ecs  = new ECSLayer<>(Component.class);
-        var pecs = new ECSLayer<>(PhysicsComponent.class);
-        var recs = new ECSLayer<>(RenderComponent.class);
-        var becs = new ECSLayer<>(BaseComponent.class);
+        var base_layer = new ECSLayer<>(BaseComponent.class);
+        var rend_layer = new ECSLayer<>(RenderComponent.class);
+        var phys_layer = new ECSLayer<>(PhysicsComponent.class);
 
-        world.register(Component.class, ecs);
-        world.register(PhysicsComponent.class, pecs);
-        world.register(RenderComponent.class, recs);
-        world.register(BaseComponent.class, becs);
+        world.register(BaseComponent.class, base_layer);
+        world.register(RenderComponent.class, rend_layer);
+        world.register(PhysicsComponent.class, phys_layer);
 
-        recs.set_global(RenderComponent.MainWindow, window);
-        recs.set_global(RenderComponent.MainCamera, new WorldCamera(window, event_bus));
-        recs.set_global(RenderComponent.Models, new ModelRegistry(GLTFModel.class, "/models/"));
-        recs.set_global(RenderComponent.PointLightCount, new MutableInt(0));
-        recs.set_global(RenderComponent.SpotLightCount, new MutableInt(0));
+        rend_layer.set_global(RenderComponent.MainWindow, window);
+        rend_layer.set_global(RenderComponent.MainCamera, new WorldCamera(window, event_bus));
+        rend_layer.set_global(RenderComponent.Models, new ModelRegistry(GLTFModel.class, "/models/"));
+        rend_layer.set_global(RenderComponent.PointLightCount, new MutableInt(0));
+        rend_layer.set_global(RenderComponent.SpotLightCount, new MutableInt(0));
 
-        pecs.set_global(PhysicsComponent.SimulationRemainder, new MutableDouble(0.0f));
+        phys_layer.set_global(PhysicsComponent.SimulationRemainder, new MutableDouble(0.0f));
 
         var input_state = new InputState();
-        ecs.set_global(Component.Input, input_state);
+        base_layer.set_global(BaseComponent.Input, input_state);
 
         world.register_system(new InputSystem<>(world, input_state));
         world.register_system(new UniformViewSystem(world));

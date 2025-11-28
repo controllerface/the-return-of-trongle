@@ -42,6 +42,12 @@ vec4 distance_mix(sampler2D sampler, float uvScale)
 }
 
 
+vec3 normal_mix(sampler2D sampler, float uvScale)
+{
+    return mix(texture(sampler, Tex3),texture(sampler, Tex3low), uvScale).rgb;
+}
+
+
 vec4 CalcTexColor(float Height, float uvScale)
 {
     vec4 TexColor;
@@ -85,18 +91,18 @@ vec4 CalcTexColor(float Height, float uvScale)
     return TexColor;
 }
 
-vec3 CalcTexNormal(float Height)
+vec3 CalcTexNormal(float Height, float uvScale)
 {
     vec3 Normal;
 
     if (Height < gHeight0)
     {
-        Normal = texture(terrainLowNormal, Tex3).rgb * 2.0 - 1.0;
+        Normal = normal_mix(terrainLowNormal, uvScale).rgb * 2.0 - 1.0;
     }
     else if (Height < gHeight1)
     {
-        vec3 Norm0 = texture(terrainLowNormal, Tex3).rgb * 2.0 - 1.0;
-        vec3 Norm1 = texture(terrainMidNormal, Tex3).rgb * 2.0 - 1.0;
+        vec3 Norm0 = normal_mix(terrainLowNormal, uvScale).rgb * 2.0 - 1.0;
+        vec3 Norm1 = normal_mix(terrainMidNormal, uvScale).rgb * 2.0 - 1.0;
         float Delta = gHeight1 - gHeight0;
         float Factor = (Height - gHeight0) / Delta;
         float BiasFactor = pow(Factor, 0.75f);
@@ -104,8 +110,8 @@ vec3 CalcTexNormal(float Height)
     }
     else if (Height < gHeight2)
     {
-        vec3 Norm0 = texture(terrainMidNormal, Tex3).rgb * 2.0 - 1.0;
-        vec3 Norm1 = texture(terrainHighNormal, Tex3).rgb * 2.0 - 1.0;
+        vec3 Norm0 = normal_mix(terrainMidNormal, uvScale).rgb * 2.0 - 1.0;
+        vec3 Norm1 = normal_mix(terrainHighNormal, uvScale).rgb * 2.0 - 1.0;
         float Delta = gHeight2 - gHeight1;
         float Factor = (Height - gHeight1) / Delta;
         float BiasFactor = pow(Factor, 0.85f);
@@ -113,8 +119,8 @@ vec3 CalcTexNormal(float Height)
     }
     else if (Height < gHeight3)
     {
-        vec3 Norm0 = texture(terrainHighNormal, Tex3).rgb * 2.0 - 1.0;
-        vec3 Norm1 = texture(terrainTopNormal, Tex3).rgb * 2.0 - 1.0;
+        vec3 Norm0 = normal_mix(terrainHighNormal, uvScale).rgb * 2.0 - 1.0;
+        vec3 Norm1 = normal_mix(terrainTopNormal, uvScale).rgb * 2.0 - 1.0;
         float Delta = gHeight3 - gHeight2;
         float Factor = (Height - gHeight2) / Delta;
         float BiasFactor = pow(Factor, 0.30);
@@ -122,7 +128,7 @@ vec3 CalcTexNormal(float Height)
     }
     else
     {
-        Normal = texture(terrainTopNormal, Tex3).rgb * 2.0 - 1.0;
+        Normal = normal_mix(terrainTopNormal, uvScale).rgb * 2.0 - 1.0;
     }
 
     return Normal;
@@ -189,6 +195,17 @@ uniform float fogStartDistance = 5000.0f;
 void main()
 {
 
+    float distance = length(WorldCoord - viewPosition);
+
+
+    float dist0 = 2.0;   // start blending
+    float dist1 = 200.0;  // fully macro beyond this
+    float t = clamp((distance - dist0) / (dist1 - dist0), 0.0, 1.0);
+    t = smoothstep(0.0, 1.0, t);
+
+
+
+
     fnl_state Vnoise = fnlCreateState(1581);
     Vnoise.noise_type = FNL_NOISE_OPENSIMPLEX2;
     Vnoise.fractal_type = FNL_FRACTAL_FBM;
@@ -216,7 +233,7 @@ void main()
 
 
 
-    vec3 n_norm = CalcTexNormal(WorldCoord.y);
+    vec3 n_norm = CalcTexNormal(WorldCoord.y, t);
     vec3 normalTangent = n_norm.rgb;
 
     vec3 normal = normalize(TBN * normalTangent);
@@ -232,14 +249,10 @@ void main()
     float heightFactor = smoothstep(gHeight0, avg, WorldCoord.y);
     float fogDensity = mix(bMax, bMin, heightFactor);
 
-    float distance = length(WorldCoord - viewPosition);
 
 
 
-    float dist0 = 10.0;   // start blending
-    float dist1 = 500.0;  // fully macro beyond this
-    float t = clamp((distance - dist0) / (dist1 - dist0), 0.0, 1.0);
-    t = smoothstep(0.0, 1.0, t);
+
 
 
 
@@ -264,7 +277,7 @@ void main()
     float fogDistFactor = clamp((distance - fogStartDistance) / fogStartDistance, 0.0, 1.0);
 
     // Apply distance fog (example color — change if needed)
-    vec3 fogColor = mix(sun.light.color, moon.light.color, blend).xyz * 0.025f;
+    vec3 fogColor = mix(sun.light.color, moon.light.color, blend).xyz * 0.05f;
     clr = mix(clr, fogColor, fogDistFactor);
 
     clr *= cloudShadow;
